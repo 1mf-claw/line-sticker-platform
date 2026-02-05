@@ -24,6 +24,7 @@ createApp({
     const project = ref<Project | null>(null)
     const drafts = ref<Draft[]>([])
     const stickers = ref<Sticker[]>([])
+    const downloadUrl = ref('')
 
     const title = ref('LINE Sticker Project')
     const theme = ref('')
@@ -104,6 +105,20 @@ createApp({
         next('PREVIEW')
       })
 
+    const removeBackground = () =>
+      run(async () => {
+        if (!project.value) return
+        await api.removeBackground(project.value.id)
+        stickers.value = await api.listStickers(project.value.id)
+      })
+
+    const exportZip = () =>
+      run(async () => {
+        if (!project.value) return
+        const res = await api.exportZip(project.value.id)
+        downloadUrl.value = res.downloadUrl
+      })
+
     return {
       step,
       loading,
@@ -111,6 +126,7 @@ createApp({
       project,
       drafts,
       stickers,
+      downloadUrl,
       title,
       theme,
       stickerCount,
@@ -122,6 +138,8 @@ createApp({
       saveDraft,
       regenerateDrafts,
       generateStickers,
+      removeBackground,
+      exportZip,
     }
   },
   template: `
@@ -196,9 +214,16 @@ createApp({
       <section v-else-if="step === 'PREVIEW'">
         <h2>6. 預覽</h2>
         <ul>
-          <li v-for="s in stickers" :key="s.id">{{ s.id }} - {{ s.status }}</li>
+          <li v-for="s in stickers" :key="s.id">
+            {{ s.id }} - {{ s.status }}
+            <span v-if="s.transparentUrl">(已去背)</span>
+          </li>
         </ul>
-        <p>下一步：去背、壓縮下載（API 已準備）</p>
+        <div style="margin:12px 0;">
+          <button @click="removeBackground">去背</button>
+          <button @click="exportZip" style="margin-left:8px;">產生下載</button>
+        </div>
+        <p v-if="downloadUrl">下載連結：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></p>
       </section>
     </div>
   `,
