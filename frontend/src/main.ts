@@ -1,9 +1,10 @@
-import { createApp, ref } from 'vue'
+import { createApp, onMounted, ref, watch } from 'vue'
 import { api } from './api/client'
 import type {
   CharacterCreateRequest,
   Draft,
   Project,
+  Provider,
   Sticker,
 } from './api/types'
 
@@ -33,12 +34,35 @@ createApp({
     const theme = ref('')
     const stickerCount = ref<8 | 16 | 24 | 40>(8)
 
+    const providers = ref<Provider[]>([])
+    const selectedProvider = ref('openai')
+    const selectedModel = ref('gpt-4o-mini')
+
     const characterReq = ref<CharacterCreateRequest>({
       sourceType: 'AI',
       prompt: '圓臉橘貓，穿襯衫',
     })
 
     const next = (s: Step) => (step.value = s)
+
+    onMounted(async () => {
+      try {
+        providers.value = await api.listProviders()
+        const found = providers.value.find((p) => p.id === selectedProvider.value)
+        if (found && found.models.length > 0) {
+          selectedModel.value = found.models[0]
+        }
+      } catch {
+        // ignore provider fetch errors for MVP
+      }
+    })
+
+    watch(selectedProvider, (val) => {
+      const p = providers.value.find((x) => x.id === val)
+      if (p && p.models.length > 0) {
+        selectedModel.value = p.models[0]
+      }
+    })
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -88,6 +112,10 @@ createApp({
     const updateTheme = () =>
       run(async () => {
         if (!project.value) return
+        await api.updateAIConfig(project.value.id, {
+          aiProvider: selectedProvider.value,
+          aiModel: selectedModel.value,
+        })
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
@@ -164,6 +192,9 @@ createApp({
       title,
       theme,
       stickerCount,
+      providers,
+      selectedProvider,
+      selectedModel,
       characterReq,
       createProject,
       createCharacter,
@@ -230,6 +261,19 @@ createApp({
         <h2>3. 主題與焦點</h2>
         <label>主題</label>
         <input v-model="theme" style="width: 100%; margin: 8px 0;" />
+
+        <div style="margin: 8px 0;">
+          <label>AI 供應商</label>
+          <select v-model="selectedProvider">
+            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+          </select>
+
+          <label style="margin-left:8px;">模型</label>
+          <select v-model="selectedModel">
+            <option v-for="m in (providers.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+          </select>
+        </div>
+
         <button @click="updateTheme">下一步</button>
       </section>
 

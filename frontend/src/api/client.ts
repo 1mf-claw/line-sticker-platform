@@ -8,6 +8,8 @@ import type {
   Project,
   ProjectCreateRequest,
   ProjectUpdateRequest,
+  AIConfigUpdateRequest,
+  Provider,
   Sticker,
   ThemeSuggestResponse,
 } from './types'
@@ -41,6 +43,14 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify(body),
     }),
+
+  updateAIConfig: (projectId: string, body: AIConfigUpdateRequest) =>
+    request<Project>(`/projects/${projectId}/ai-config`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  listProviders: () => request<Provider[]>('/providers'),
 
   createCharacter: (projectId: string, body: CharacterCreateRequest) =>
     request<Character>(`/projects/${projectId}/character`, {
