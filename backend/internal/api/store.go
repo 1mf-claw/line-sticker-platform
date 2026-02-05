@@ -34,7 +34,9 @@ func (s *Store) migrate() {
 			theme TEXT,
 			sticker_count INTEGER,
 			status TEXT,
-			character_id TEXT
+			character_id TEXT,
+			ai_provider TEXT,
+			ai_model TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS characters (
 			id TEXT PRIMARY KEY,
@@ -74,6 +76,10 @@ func (s *Store) migrate() {
 			panic(err)
 		}
 	}
+
+	// Add columns for legacy DBs
+	s.ensureColumn("projects", "ai_provider", "TEXT")
+	s.ensureColumn("projects", "ai_model", "TEXT")
 }
 
 func newID(prefix string) string {
@@ -85,8 +91,8 @@ func (s *Store) CreateProject(title string, stickerCount int) *Project {
 	defer s.mu.Unlock()
 	id := newID("proj")
 	_, _ = s.db.Exec(
-		`INSERT INTO projects (id,title,theme,sticker_count,status,character_id) VALUES (?,?,?,?,?,?)`,
-		id, title, "", stickerCount, "DRAFT", "",
+		`INSERT INTO projects (id,title,theme,sticker_count,status,character_id,ai_provider,ai_model) VALUES (?,?,?,?,?,?,?,?)`,
+		id, title, "", stickerCount, "DRAFT", "", "", "",
 	)
 	return &Project{ID: id, Title: title, StickerCount: stickerCount, Status: "DRAFT"}
 }
@@ -105,9 +111,9 @@ func (s *Store) UpdateProjectTheme(projectID string, theme string) (*Project, bo
 func (s *Store) GetProject(projectID string) (*Project, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	row := s.db.QueryRow(`SELECT id,title,theme,sticker_count,status,character_id FROM projects WHERE id=?`, projectID)
+	row := s.db.QueryRow(`SELECT id,title,theme,sticker_count,status,character_id,ai_provider,ai_model FROM projects WHERE id=?`, projectID)
 	p := &Project{}
-	if err := row.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID); err != nil {
+	if err := row.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID, &p.AIProvider, &p.AIModel); err != nil {
 		return nil, false
 	}
 	return p, true
@@ -116,12 +122,12 @@ func (s *Store) GetProject(projectID string) (*Project, bool) {
 func (s *Store) ListProjects() []*Project {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	rows, _ := s.db.Query(`SELECT id,title,theme,sticker_count,status,character_id FROM projects`)
+	rows, _ := s.db.Query(`SELECT id,title,theme,sticker_count,status,character_id,ai_provider,ai_model FROM projects`)
 	defer rows.Close()
 	out := []*Project{}
 	for rows.Next() {
 		p := &Project{}
-		_ = rows.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID)
+		_ = rows.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID, &p.AIProvider, &p.AIModel)
 		out = append(out, p)
 	}
 	return out

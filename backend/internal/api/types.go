@@ -9,6 +9,8 @@ type Project struct {
 	StickerCount int           `json:"stickerCount"`
 	Status       ProjectStatus `json:"status"`
 	CharacterID  string        `json:"characterId"`
+	AIProvider   string        `json:"aiProvider"`
+	AIModel      string        `json:"aiModel"`
 }
 
 type ProjectCreateRequest struct {
@@ -18,6 +20,11 @@ type ProjectCreateRequest struct {
 
 type ProjectUpdateRequest struct {
 	Theme string `json:"theme"`
+}
+
+type AIConfigUpdateRequest struct {
+	AIProvider string `json:"aiProvider"`
+	AIModel    string `json:"aiModel"`
 }
 
 type CharacterCreateRequest struct {

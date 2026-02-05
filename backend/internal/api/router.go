@@ -81,6 +81,34 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /providers
+	if len(segments) == 1 && segments[0] == "providers" {
+		if r.Method == http.MethodGet {
+			writeJSON(w, http.StatusOK, ListProviders())
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
+	// /projects/{projectId}/ai-config
+	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "ai-config" {
+		if r.Method == http.MethodPatch {
+			var req AIConfigUpdateRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			if p, ok := store.UpdateProjectAI(segments[1], req); ok {
+				writeJSON(w, http.StatusOK, p)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	// /projects/{projectId}/theme:suggest
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "theme:suggest" {
 		if r.Method == http.MethodPost {

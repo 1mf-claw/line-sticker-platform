@@ -12,3 +12,10 @@ func (s *Store) getCharacterInput(projectID string) ai.CharacterInput {
 		SourceType:        sourceType,
 	}
 }
+
+func (s *Store) getProjectAI(projectID string) (string, string) {
+	row := s.db.QueryRow(`SELECT ai_provider, ai_model FROM projects WHERE id=?`, projectID)
+	var provider, model string
+	_ = row.Scan(&provider, &model)
+	return provider, model
+}
