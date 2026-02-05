@@ -105,6 +105,13 @@ createApp({
         next('PREVIEW')
       })
 
+    const regenerateSticker = (stickerId: string) =>
+      run(async () => {
+        if (!project.value) return
+        await api.regenerateSticker(stickerId)
+        stickers.value = await api.listStickers(project.value.id)
+      })
+
     const removeBackground = () =>
       run(async () => {
         if (!project.value) return
@@ -138,6 +145,7 @@ createApp({
       saveDraft,
       regenerateDrafts,
       generateStickers,
+      regenerateSticker,
       removeBackground,
       exportZip,
     }
@@ -217,6 +225,7 @@ createApp({
           <li v-for="s in stickers" :key="s.id">
             {{ s.id }} - {{ s.status }}
             <span v-if="s.transparentUrl">(已去背)</span>
+            <button @click="regenerateSticker(s.id)" style="margin-left:8px;">重生此張</button>
           </li>
         </ul>
         <div style="margin:12px 0;">
