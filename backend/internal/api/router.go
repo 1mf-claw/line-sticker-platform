@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var store = NewStore()
+
 func Router() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/", apiHandler)
@@ -21,13 +23,14 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	if len(segments) == 1 && segments[0] == "projects" {
 		switch r.Method {
 		case http.MethodGet:
-			writeJSON(w, http.StatusOK, []Project{})
+			writeJSON(w, http.StatusOK, store.ListProjects())
 		case http.MethodPost:
-			writeJSON(w, http.StatusOK, Project{
-				ID:           "proj_123",
-				Status:       "DRAFT",
-				StickerCount: 8,
-			})
+			var req ProjectCreateRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			p := store.CreateProject(req.Title, req.StickerCount)
+			writeJSON(w, http.StatusOK, p)
 		default:
 			writeStatus(w, http.StatusMethodNotAllowed)
 		}
@@ -38,15 +41,22 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	if len(segments) == 2 && segments[0] == "projects" {
 		projectID := segments[1]
 		switch r.Method {
-		case http.MethodGet, http.MethodPatch:
-			writeJSON(w, http.StatusOK, Project{
-				ID:           projectID,
-				Title:        "LINE Sticker Project",
-				Theme:        "Office Life",
-				StickerCount: 8,
-				Status:       "DRAFT_READY",
-				CharacterID:  "char_456",
-			})
+		case http.MethodGet:
+			if p, ok := store.GetProject(projectID); ok {
+				writeJSON(w, http.StatusOK, p)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
+		case http.MethodPatch:
+			var req ProjectUpdateRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			if p, ok := store.UpdateProjectTheme(projectID, req.Theme); ok {
+				writeJSON(w, http.StatusOK, p)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 		default:
 			writeStatus(w, http.StatusMethodNotAllowed)
 		}
@@ -56,12 +66,15 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/character
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "character" {
 		if r.Method == http.MethodPost {
-			writeJSON(w, http.StatusOK, Character{
-				ID:                "char_456",
-				SourceType:        "AI",
-				ReferenceImageURL: "",
-				Status:            "READY",
-			})
+			var req CharacterCreateRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			if c, ok := store.CreateCharacter(segments[1], req); ok {
+				writeJSON(w, http.StatusOK, c)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -83,12 +96,11 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/drafts:generate
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "drafts:generate" {
 		if r.Method == http.MethodPost {
-			writeJSON(w, http.StatusOK, Job{
-				ID:       "job_789",
-				Type:     "GENERATE_DRAFT",
-				Status:   "QUEUED",
-				Progress: 0,
-			})
+			if job, ok := store.GenerateDrafts(segments[1]); ok {
+				writeJSON(w, http.StatusOK, job)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -98,16 +110,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/drafts
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "drafts" {
 		if r.Method == http.MethodGet {
-			writeJSON(w, http.StatusOK, []Draft{
-				{
-					ID:          "draft_1",
-					ProjectID:   segments[1],
-					Index:       1,
-					Caption:     "早安",
-					ImagePrompt: "橘貓揮手說早安",
-					Status:      "DRAFT",
-				},
-			})
+			writeJSON(w, http.StatusOK, store.ListDrafts(segments[1]))
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -117,10 +120,15 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /drafts/{draftId}
 	if len(segments) == 2 && segments[0] == "drafts" {
 		if r.Method == http.MethodPatch {
-			writeJSON(w, http.StatusOK, Draft{
-				ID:     segments[1],
-				Status: "DRAFT",
-			})
+			var req DraftUpdateRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			if d, ok := store.UpdateDraft(segments[1], req); ok {
+				writeJSON(w, http.StatusOK, d)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -130,12 +138,11 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/stickers:generate
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "stickers:generate" {
 		if r.Method == http.MethodPost {
-			writeJSON(w, http.StatusOK, Job{
-				ID:       "job_888",
-				Type:     "GENERATE_IMAGE",
-				Status:   "QUEUED",
-				Progress: 0,
-			})
+			if job, ok := store.GenerateStickers(segments[1]); ok {
+				writeJSON(w, http.StatusOK, job)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -143,14 +150,14 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// /stickers/{stickerId}:regenerate
-	if len(segments) == 2 && strings.HasPrefix(segments[0], "stickers") && strings.HasSuffix(segments[1], ":regenerate") {
+	if len(segments) == 2 && segments[0] == "stickers" && strings.HasSuffix(segments[1], ":regenerate") {
 		if r.Method == http.MethodPost {
-			writeJSON(w, http.StatusOK, Job{
-				ID:       "job_777",
-				Type:     "GENERATE_IMAGE",
-				Status:   "QUEUED",
-				Progress: 0,
-			})
+			stickerID := strings.TrimSuffix(segments[1], ":regenerate")
+			if job, ok := store.RegenerateSticker(stickerID); ok {
+				writeJSON(w, http.StatusOK, job)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -160,16 +167,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/stickers
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "stickers" {
 		if r.Method == http.MethodGet {
-			writeJSON(w, http.StatusOK, []Sticker{
-				{
-					ID:             "stk_1",
-					ProjectID:      segments[1],
-					DraftID:        "draft_1",
-					ImageURL:       "https://example.com/sticker.png",
-					TransparentURL: "https://example.com/sticker-transparent.png",
-					Status:         "READY",
-				},
-			})
+			writeJSON(w, http.StatusOK, store.ListStickers(segments[1]))
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -179,12 +177,11 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/stickers:remove-bg
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "stickers:remove-bg" {
 		if r.Method == http.MethodPost {
-			writeJSON(w, http.StatusOK, Job{
-				ID:       "job_999",
-				Type:     "REMOVE_BG",
-				Status:   "QUEUED",
-				Progress: 0,
-			})
+			if job, ok := store.RemoveBackground(segments[1]); ok {
+				writeJSON(w, http.StatusOK, job)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -194,9 +191,11 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /projects/{projectId}/export
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "export" {
 		if r.Method == http.MethodPost {
-			writeJSON(w, http.StatusOK, ExportResponse{
-				DownloadURL: "https://example.com/export.zip",
-			})
+			if res, ok := store.Export(segments[1]); ok {
+				writeJSON(w, http.StatusOK, res)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -206,12 +205,11 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// /jobs/{jobId}
 	if len(segments) == 2 && segments[0] == "jobs" {
 		if r.Method == http.MethodGet {
-			writeJSON(w, http.StatusOK, Job{
-				ID:       segments[1],
-				Type:     "GENERATE_DRAFT",
-				Status:   "RUNNING",
-				Progress: 50,
-			})
+			if j, ok := store.GetJob(segments[1]); ok {
+				writeJSON(w, http.StatusOK, j)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)
@@ -229,4 +227,12 @@ func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 
 func writeStatus(w http.ResponseWriter, code int) {
 	w.WriteHeader(code)
+}
+
+func decodeJSON(w http.ResponseWriter, r *http.Request, v interface{}) bool {
+	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
+		writeStatus(w, http.StatusBadRequest)
+		return false
+	}
+	return true
 }

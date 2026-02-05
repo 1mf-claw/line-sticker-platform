@@ -11,11 +11,31 @@ type Project struct {
 	CharacterID  string        `json:"characterId"`
 }
 
-type Character struct {
-	ID               string `json:"id"`
-	SourceType       string `json:"sourceType"`
+type ProjectCreateRequest struct {
+	Title        string `json:"title"`
+	StickerCount int    `json:"stickerCount"`
+}
+
+type ProjectUpdateRequest struct {
+	Theme string `json:"theme"`
+}
+
+type CharacterCreateRequest struct {
+	SourceType        string `json:"sourceType"`
+	Prompt            string `json:"prompt"`
 	ReferenceImageURL string `json:"referenceImageUrl"`
-	Status           string `json:"status"`
+}
+
+type Character struct {
+	ID                string `json:"id"`
+	SourceType        string `json:"sourceType"`
+	ReferenceImageURL string `json:"referenceImageUrl"`
+	Status            string `json:"status"`
+}
+
+type DraftUpdateRequest struct {
+	Caption     string `json:"caption"`
+	ImagePrompt string `json:"imagePrompt"`
 }
 
 type Draft struct {
