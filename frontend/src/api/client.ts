@@ -9,6 +9,7 @@ import type {
   ProjectCreateRequest,
   ProjectUpdateRequest,
   AIConfigUpdateRequest,
+  AICredentialsRequest,
   Provider,
   Sticker,
   ThemeSuggestResponse,
@@ -51,6 +52,12 @@ export const api = {
     }),
 
   listProviders: () => request<Provider[]>('/providers'),
+
+  setAICredentials: (projectId: string, body: AICredentialsRequest) =>
+    request<void>(`/projects/${projectId}/ai-credentials`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 
   createCharacter: (projectId: string, body: CharacterCreateRequest) =>
     request<Character>(`/projects/${projectId}/character`, {

@@ -27,6 +27,12 @@ type AIConfigUpdateRequest struct {
 	AIModel    string `json:"aiModel"`
 }
 
+type AICredentialsRequest struct {
+	AIProvider string `json:"aiProvider"`
+	APIKey     string `json:"apiKey"`
+	APIBase    string `json:"apiBase"`
+}
+
 type CharacterCreateRequest struct {
 	SourceType        string `json:"sourceType"`
 	Prompt            string `json:"prompt"`

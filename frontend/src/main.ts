@@ -37,6 +37,8 @@ createApp({
     const providers = ref<Provider[]>([])
     const selectedProvider = ref('openai')
     const selectedModel = ref('gpt-4o-mini')
+    const apiKey = ref('')
+    const apiBase = ref('')
 
     const characterReq = ref<CharacterCreateRequest>({
       sourceType: 'AI',
@@ -112,6 +114,13 @@ createApp({
     const updateTheme = () =>
       run(async () => {
         if (!project.value) return
+        if (apiKey.value) {
+          await api.setAICredentials(project.value.id, {
+            aiProvider: selectedProvider.value,
+            apiKey: apiKey.value,
+            apiBase: apiBase.value || undefined,
+          })
+        }
         await api.updateAIConfig(project.value.id, {
           aiProvider: selectedProvider.value,
           aiModel: selectedModel.value,
@@ -195,6 +204,8 @@ createApp({
       providers,
       selectedProvider,
       selectedModel,
+      apiKey,
+      apiBase,
       characterReq,
       createProject,
       createCharacter,
@@ -272,6 +283,13 @@ createApp({
           <select v-model="selectedModel">
             <option v-for="m in (providers.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
+        </div>
+
+        <div style="margin: 8px 0;">
+          <label>API Key（只會暫存於記憶體）</label>
+          <input v-model="apiKey" type="password" style="width:100%; margin:6px 0;" />
+          <label>API Base（可選）</label>
+          <input v-model="apiBase" placeholder="https://api.openai.com" style="width:100%; margin:6px 0;" />
         </div>
 
         <button @click="updateTheme">下一步</button>

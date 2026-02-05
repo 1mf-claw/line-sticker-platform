@@ -14,6 +14,8 @@ export type Project = {
   stickerCount: 8 | 16 | 24 | 40
   status: ProjectStatus
   characterId?: string
+  aiProvider?: string
+  aiModel?: string
 }
 
 export type ProjectCreateRequest = {
@@ -30,9 +32,10 @@ export type AIConfigUpdateRequest = {
   aiModel: string
 }
 
-export type AIConfigUpdateRequest = {
+export type AICredentialsRequest = {
   aiProvider: string
-  aiModel: string
+  apiKey: string
+  apiBase?: string
 }
 
 export type CharacterCreateRequest = {
@@ -81,12 +84,6 @@ export type Job = {
 
 export type ThemeSuggestResponse = {
   suggestions: string[]
-}
-
-export type Provider = {
-  id: string
-  name: string
-  models: string[]
 }
 
 export type Provider = {

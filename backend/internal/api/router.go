@@ -109,6 +109,24 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /projects/{projectId}/ai-credentials
+	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "ai-credentials" {
+		if r.Method == http.MethodPost {
+			var req AICredentialsRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			if ok := store.StoreAICredentials(segments[1], req); ok {
+				writeStatus(w, http.StatusNoContent)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	// /projects/{projectId}/theme:suggest
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "theme:suggest" {
 		if r.Method == http.MethodPost {
