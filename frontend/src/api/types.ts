@@ -30,6 +30,11 @@ export type AIConfigUpdateRequest = {
   aiModel: string
 }
 
+export type AIConfigUpdateRequest = {
+  aiProvider: string
+  aiModel: string
+}
+
 export type CharacterCreateRequest = {
   sourceType: 'AI' | 'UPLOAD' | 'HISTORY'
   prompt?: string
@@ -76,6 +81,12 @@ export type Job = {
 
 export type ThemeSuggestResponse = {
   suggestions: string[]
+}
+
+export type Provider = {
+  id: string
+  name: string
+  models: string[]
 }
 
 export type Provider = {
