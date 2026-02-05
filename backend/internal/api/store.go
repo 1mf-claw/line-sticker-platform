@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 type Store struct {
@@ -224,7 +225,23 @@ func (s *Store) GetJob(jobID string) (*Job, bool) {
 
 func (s *Store) newJob(jobType string) *Job {
 	id := s.nextID("job")
-	j := &Job{ID: id, Type: jobType, Status: "SUCCESS", Progress: 100}
+	j := &Job{ID: id, Type: jobType, Status: "RUNNING", Progress: 0}
 	s.jobs[id] = j
+
+	// Simulate progress for MVP
+	go func(jobID string) {
+		for p := 10; p <= 100; p += 10 {
+			time.Sleep(200 * time.Millisecond)
+			s.mu.Lock()
+			if job, ok := s.jobs[jobID]; ok {
+				job.Progress = p
+				if p == 100 {
+					job.Status = "SUCCESS"
+				}
+			}
+			s.mu.Unlock()
+		}
+	}(id)
+
 	return j
 }
