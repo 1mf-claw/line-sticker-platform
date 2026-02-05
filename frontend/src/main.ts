@@ -81,6 +81,21 @@ createApp({
         next('GENERATE')
       })
 
+    const saveDraft = (d: Draft) =>
+      run(async () => {
+        await api.updateDraft(d.id, {
+          caption: d.caption,
+          imagePrompt: d.imagePrompt,
+        })
+      })
+
+    const regenerateDrafts = () =>
+      run(async () => {
+        if (!project.value) return
+        await api.generateDrafts(project.value.id)
+        drafts.value = await api.listDrafts(project.value.id)
+      })
+
     const generateStickers = () =>
       run(async () => {
         if (!project.value) return
@@ -104,6 +119,8 @@ createApp({
       createCharacter,
       updateTheme,
       generateDrafts,
+      saveDraft,
+      regenerateDrafts,
       generateStickers,
     }
   },
@@ -163,10 +180,16 @@ createApp({
       </section>
 
       <section v-else-if="step === 'GENERATE'">
-        <h2>5. 草稿確認</h2>
-        <ul>
-          <li v-for="d in drafts" :key="d.id">#{{ d.index }} - {{ d.caption }} / {{ d.imagePrompt }}</li>
-        </ul>
+        <h2>5. 草稿確認 / 編輯</h2>
+        <button @click="regenerateDrafts">重生全部草稿</button>
+        <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
+          <div>第 {{ d.index }} 張</div>
+          <label>配字</label>
+          <input v-model="d.caption" style="width:100%; margin:6px 0;" />
+          <label>描述</label>
+          <textarea v-model="d.imagePrompt" style="width:100%; margin:6px 0;"></textarea>
+          <button @click="saveDraft(d)">保存此草稿</button>
+        </div>
         <button @click="generateStickers">開始生成貼圖</button>
       </section>
 
