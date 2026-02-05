@@ -1,0 +1,396 @@
+openapi: 3.0.3
+info:
+  title: LINE Sticker Maker API
+  version: 1.0.0
+  description: API for LINE sticker creation workflow (projects, characters, drafts, stickers, jobs, export).
+servers:
+  - url: /api/v1
+paths:
+  /projects:
+    post:
+      summary: Create project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreateRequest'
+      responses:
+        '200':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    get:
+      summary: List projects
+      responses:
+        '200':
+          description: Project list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+
+  /projects/{projectId}:
+    get:
+      summary: Get project detail
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    patch:
+      summary: Update project theme
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdateRequest'
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /projects/{projectId}/character:
+    post:
+      summary: Create character for project
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CharacterCreateRequest'
+      responses:
+        '200':
+          description: Character created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+
+  /projects/{projectId}/theme:suggest:
+    post:
+      summary: Suggest themes by AI
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThemeSuggestRequest'
+      responses:
+        '200':
+          description: Theme suggestions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemeSuggestResponse'
+
+  /projects/{projectId}/drafts:generate:
+    post:
+      summary: Generate drafts
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Draft generation job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+  /projects/{projectId}/drafts:
+    get:
+      summary: List drafts
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Draft list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Draft'
+
+  /drafts/{draftId}:
+    patch:
+      summary: Update draft (caption / prompt)
+      parameters:
+        - $ref: '#/components/parameters/DraftId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DraftUpdateRequest'
+      responses:
+        '200':
+          description: Draft updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Draft'
+
+  /projects/{projectId}/stickers:generate:
+    post:
+      summary: Generate stickers
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Sticker generation job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+  /stickers/{stickerId}:regenerate:
+    post:
+      summary: Regenerate one sticker
+      parameters:
+        - $ref: '#/components/parameters/StickerId'
+      responses:
+        '200':
+          description: Regeneration job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+  /projects/{projectId}/stickers:
+    get:
+      summary: List stickers
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Sticker list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sticker'
+
+  /projects/{projectId}/stickers:remove-bg:
+    post:
+      summary: Remove background for all stickers
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Remove-bg job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+  /projects/{projectId}/export:
+    post:
+      summary: Export stickers as ZIP
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Export URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResponse'
+
+  /jobs/{jobId}:
+    get:
+      summary: Get job status
+      parameters:
+        - $ref: '#/components/parameters/JobId'
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+
+components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+    DraftId:
+      name: draftId
+      in: path
+      required: true
+      schema:
+        type: string
+    StickerId:
+      name: stickerId
+      in: path
+      required: true
+      schema:
+        type: string
+    JobId:
+      name: jobId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    ProjectCreateRequest:
+      type: object
+      required: [stickerCount]
+      properties:
+        title:
+          type: string
+        stickerCount:
+          type: integer
+          enum: [8, 16, 24, 40]
+
+    ProjectUpdateRequest:
+      type: object
+      properties:
+        theme:
+          type: string
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        theme:
+          type: string
+        stickerCount:
+          type: integer
+          enum: [8, 16, 24, 40]
+        status:
+          type: string
+          enum: [DRAFT, GENERATING_DRAFTS, DRAFT_READY, GENERATING_IMAGES, IMAGES_READY, EXPORTING, DONE]
+        characterId:
+          type: string
+
+    CharacterCreateRequest:
+      type: object
+      required: [sourceType]
+      properties:
+        sourceType:
+          type: string
+          enum: [AI, UPLOAD, HISTORY]
+        prompt:
+          type: string
+        referenceImageUrl:
+          type: string
+
+    Character:
+      type: object
+      properties:
+        id:
+          type: string
+        sourceType:
+          type: string
+          enum: [AI, UPLOAD, HISTORY]
+        referenceImageUrl:
+          type: string
+        status:
+          type: string
+          enum: [READY, FAILED]
+
+    ThemeSuggestRequest:
+      type: object
+      properties:
+        seed:
+          type: string
+
+    ThemeSuggestResponse:
+      type: object
+      properties:
+        suggestions:
+          type: array
+          items:
+            type: string
+
+    Draft:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        index:
+          type: integer
+        caption:
+          type: string
+        imagePrompt:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, APPROVED, REJECTED]
+
+    DraftUpdateRequest:
+      type: object
+      properties:
+        caption:
+          type: string
+        imagePrompt:
+          type: string
+
+    Sticker:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        draftId:
+          type: string
+        imageUrl:
+          type: string
+        transparentUrl:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, GENERATING, READY, FAILED]
+
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [GENERATE_DRAFT, GENERATE_IMAGE, REMOVE_BG]
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, SUCCESS, FAILED]
+        progress:
+          type: integer
+        errorMessage:
+          type: string
+
+    ExportResponse:
+      type: object
+      properties:
+        downloadUrl:
+          type: string
