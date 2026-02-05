@@ -6,12 +6,14 @@ import (
 	"sync"
 	"time"
 
+	"example.com/app/internal/ai"
 	_ "modernc.org/sqlite"
 )
 
 type Store struct {
 	mu sync.Mutex
 	db *sql.DB
+	ai ai.Pipeline
 }
 
 func NewStore() *Store {
@@ -20,7 +22,7 @@ func NewStore() *Store {
 		panic(err)
 	}
 
-	s := &Store{db: db}
+	s := &Store{db: db, ai: ai.MockPipeline{}}
 	s.migrate()
 	return s
 }
@@ -154,10 +156,19 @@ func (s *Store) GenerateDrafts(projectID string) (*Job, bool) {
 		return nil, false
 	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "GENERATING_DRAFTS", projectID)
+
+	charInput := s.getCharacterInput(projectID)
+	ideas, _ := s.ai.GenerateDrafts(p.Theme, p.StickerCount, charInput)
 	for i := 1; i <= p.StickerCount; i++ {
 		id := newID("draft")
+		caption := fmt.Sprintf("草稿 %d", i)
+		prompt := fmt.Sprintf("主角依主題動作 %d", i)
+		if i-1 < len(ideas) {
+			caption = ideas[i-1].Caption
+			prompt = ideas[i-1].ImagePrompt
+		}
 		_, _ = s.db.Exec(`INSERT INTO drafts (id,project_id,idx,caption,image_prompt,status) VALUES (?,?,?,?,?,?)`,
-			id, projectID, i, fmt.Sprintf("草稿 %d", i), fmt.Sprintf("主角依主題動作 %d", i), "DRAFT",
+			id, projectID, i, caption, prompt, "DRAFT",
 		)
 	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "DRAFT_READY", projectID)
@@ -197,14 +208,16 @@ func (s *Store) GenerateStickers(projectID string) (*Job, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "GENERATING_IMAGES", projectID)
-	rows, _ := s.db.Query(`SELECT id FROM drafts WHERE project_id=?`, projectID)
+	rows, _ := s.db.Query(`SELECT id,image_prompt FROM drafts WHERE project_id=?`, projectID)
 	defer rows.Close()
+	charInput := s.getCharacterInput(projectID)
 	for rows.Next() {
-		var draftID string
-		_ = rows.Scan(&draftID)
+		var draftID, prompt string
+		_ = rows.Scan(&draftID, &prompt)
+		imageURL, _ := s.ai.GenerateImage(prompt, charInput)
 		id := newID("stk")
 		_, _ = s.db.Exec(`INSERT INTO stickers (id,project_id,draft_id,image_url,transparent_url,status) VALUES (?,?,?,?,?,?)`,
-			id, projectID, draftID, "https://example.com/sticker.png", "", "READY",
+			id, projectID, draftID, imageURL, "", "READY",
 		)
 	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "IMAGES_READY", projectID)
@@ -229,7 +242,14 @@ func (s *Store) ListStickers(projectID string) []*Sticker {
 func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	_, _ = s.db.Exec(`UPDATE stickers SET transparent_url=? WHERE project_id=?`, "https://example.com/sticker-transparent.png", projectID)
+	rows, _ := s.db.Query(`SELECT id,image_url FROM stickers WHERE project_id=?`, projectID)
+	defer rows.Close()
+	for rows.Next() {
+		var id, imageURL string
+		_ = rows.Scan(&id, &imageURL)
+		transparentURL, _ := s.ai.RemoveBackground(imageURL)
+		_, _ = s.db.Exec(`UPDATE stickers SET transparent_url=? WHERE id=?`, transparentURL, id)
+	}
 	job := s.newJob("REMOVE_BG", projectID, "")
 	return job, true
 }
@@ -244,11 +264,17 @@ func (s *Store) Export(projectID string) (*ExportResponse, bool) {
 func (s *Store) RegenerateSticker(stickerID string) (*Job, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	row := s.db.QueryRow(`SELECT id,project_id FROM stickers WHERE id=?`, stickerID)
-	var id, projectID string
-	if err := row.Scan(&id, &projectID); err != nil {
+	row := s.db.QueryRow(`SELECT id,project_id,draft_id FROM stickers WHERE id=?`, stickerID)
+	var id, projectID, draftID string
+	if err := row.Scan(&id, &projectID, &draftID); err != nil {
 		return nil, false
 	}
+	promptRow := s.db.QueryRow(`SELECT image_prompt FROM drafts WHERE id=?`, draftID)
+	var prompt string
+	_ = promptRow.Scan(&prompt)
+	charInput := s.getCharacterInput(projectID)
+	imageURL, _ := s.ai.GenerateImage(prompt, charInput)
+	_, _ = s.db.Exec(`UPDATE stickers SET image_url=?, status=? WHERE id=?`, imageURL, "READY", stickerID)
 	job := s.newJob("GENERATE_IMAGE", projectID, stickerID)
 	return job, true
 }
@@ -275,9 +301,11 @@ func (s *Store) newJob(jobType string, projectID string, targetID string) *Job {
 		for p := 10; p <= 100; p += 10 {
 			time.Sleep(200 * time.Millisecond)
 			s.mu.Lock()
-			_, _ = s.db.Exec(`UPDATE jobs SET progress=?, status=? WHERE id=?`,
-				p, func() string { if p == 100 { return "SUCCESS" }; return "RUNNING" }(), jobID,
-			)
+			status := "RUNNING"
+			if p == 100 {
+				status = "SUCCESS"
+			}
+			_, _ = s.db.Exec(`UPDATE jobs SET progress=?, status=? WHERE id=?`, p, status, jobID)
 			s.mu.Unlock()
 		}
 	}(id)
