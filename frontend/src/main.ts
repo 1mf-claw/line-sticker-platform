@@ -26,6 +26,9 @@ createApp({
     const stickers = ref<Sticker[]>([])
     const downloadUrl = ref('')
 
+    const jobStatus = ref('')
+    const jobProgress = ref(0)
+
     const title = ref('LINE Sticker Project')
     const theme = ref('')
     const stickerCount = ref<8 | 16 | 24 | 40>(8)
@@ -36,6 +39,23 @@ createApp({
     })
 
     const next = (s: Step) => (step.value = s)
+
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+    const pollJob = async (jobId: string) => {
+      jobStatus.value = 'RUNNING'
+      jobProgress.value = 0
+      for (let i = 0; i < 20; i++) {
+        const job = await api.getJob(jobId)
+        jobStatus.value = job.status
+        jobProgress.value = job.progress ?? 0
+        if (job.status === 'SUCCESS' || job.status === 'FAILED') {
+          return job.status
+        }
+        await sleep(500)
+      }
+      return 'RUNNING'
+    }
 
     const run = async (fn: () => Promise<void>) => {
       error.value = ''
@@ -77,7 +97,8 @@ createApp({
     const generateDrafts = () =>
       run(async () => {
         if (!project.value) return
-        await api.generateDrafts(project.value.id)
+        const job = await api.generateDrafts(project.value.id)
+        await pollJob(job.id)
         drafts.value = await api.listDrafts(project.value.id)
         next('GENERATE')
       })
@@ -93,14 +114,16 @@ createApp({
     const regenerateDrafts = () =>
       run(async () => {
         if (!project.value) return
-        await api.generateDrafts(project.value.id)
+        const job = await api.generateDrafts(project.value.id)
+        await pollJob(job.id)
         drafts.value = await api.listDrafts(project.value.id)
       })
 
     const generateStickers = () =>
       run(async () => {
         if (!project.value) return
-        await api.generateStickers(project.value.id)
+        const job = await api.generateStickers(project.value.id)
+        await pollJob(job.id)
         stickers.value = await api.listStickers(project.value.id)
         next('PREVIEW')
       })
@@ -108,14 +131,16 @@ createApp({
     const regenerateSticker = (stickerId: string) =>
       run(async () => {
         if (!project.value) return
-        await api.regenerateSticker(stickerId)
+        const job = await api.regenerateSticker(stickerId)
+        await pollJob(job.id)
         stickers.value = await api.listStickers(project.value.id)
       })
 
     const removeBackground = () =>
       run(async () => {
         if (!project.value) return
-        await api.removeBackground(project.value.id)
+        const job = await api.removeBackground(project.value.id)
+        await pollJob(job.id)
         stickers.value = await api.listStickers(project.value.id)
       })
 
@@ -134,6 +159,8 @@ createApp({
       drafts,
       stickers,
       downloadUrl,
+      jobStatus,
+      jobProgress,
       title,
       theme,
       stickerCount,
@@ -155,6 +182,13 @@ createApp({
       <h1>LINE 貼圖製作平台</h1>
       <p v-if="error" style="color: red;">{{ error }}</p>
       <p v-if="loading">處理中...</p>
+
+      <div v-if="jobStatus" style="margin: 12px 0;">
+        <div>Job 狀態：{{ jobStatus }}</div>
+        <div style="background:#eee; height:8px; border-radius:4px; overflow:hidden;">
+          <div :style="{ width: jobProgress + '%', background:'#4ade80', height:'8px' }"></div>
+        </div>
+      </div>
 
       <section v-if="step === 'CREATE_PROJECT'">
         <h2>1. 建立專案</h2>
