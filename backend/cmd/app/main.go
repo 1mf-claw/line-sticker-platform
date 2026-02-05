@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"example.com/app/internal/api"
 )
 
 type Message struct {
@@ -43,6 +45,8 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Message{Message: "Hello from Go backend"})
 	})
+
+	mux.Handle("/api/v1/", api.Router())
 
 	log.Fatal(http.ListenAndServe(":8080", withCORS(mux)))
 }
