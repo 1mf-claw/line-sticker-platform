@@ -1,22 +1,31 @@
-import { createApp, ref, onMounted } from 'vue'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { createApp, onMounted, ref } from 'vue'
+import { api } from './api/client'
+import type { Project } from './api/types'
 
 createApp({
   setup() {
-    const msg = ref('Loading...')
+    const status = ref('Loading...')
+    const project = ref<Project | null>(null)
 
     onMounted(async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/message`)
-        const data = await res.json()
-        msg.value = data.message
+        const created = await api.createProject({
+          title: 'LINE Sticker Project',
+          stickerCount: 8,
+        })
+        project.value = created
+        status.value = `Project ${created.id} (${created.status})`
       } catch (e) {
-        msg.value = 'Failed to connect backend'
+        status.value = 'Failed to connect API'
       }
     })
 
-    return { msg }
+    return { status, project }
   },
-  template: `<h1>{{ msg }}</h1>`
+  template: `
+    <div>
+      <h1>{{ status }}</h1>
+      <pre v-if="project">{{ project }}</pre>
+    </div>
+  `,
 }).mount('#app')
