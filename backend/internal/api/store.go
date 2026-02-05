@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"sync"
-	"time"
 
 	"example.com/app/internal/ai"
 	_ "modernc.org/sqlite"
@@ -173,6 +172,8 @@ func (s *Store) GenerateDrafts(projectID string) (*Job, bool) {
 	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "DRAFT_READY", projectID)
 	job := s.newJob("GENERATE_DRAFT", projectID, "")
+	// draft generation finished
+	s.setJobProgress(job.ID, 100, "SUCCESS")
 	return job, true
 }
 
@@ -222,6 +223,8 @@ func (s *Store) GenerateStickers(projectID string) (*Job, bool) {
 	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "IMAGES_READY", projectID)
 	job := s.newJob("GENERATE_IMAGE", projectID, "")
+	// sticker generation finished
+	s.setJobProgress(job.ID, 100, "SUCCESS")
 	return job, true
 }
 
@@ -251,6 +254,8 @@ func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 		_, _ = s.db.Exec(`UPDATE stickers SET transparent_url=? WHERE id=?`, transparentURL, id)
 	}
 	job := s.newJob("REMOVE_BG", projectID, "")
+	// remove-bg finished
+	s.setJobProgress(job.ID, 100, "SUCCESS")
 	return job, true
 }
 
@@ -276,6 +281,8 @@ func (s *Store) RegenerateSticker(stickerID string) (*Job, bool) {
 	imageURL, _ := s.ai.GenerateImage(prompt, charInput)
 	_, _ = s.db.Exec(`UPDATE stickers SET image_url=?, status=? WHERE id=?`, imageURL, "READY", stickerID)
 	job := s.newJob("GENERATE_IMAGE", projectID, stickerID)
+	// regenerate finished
+	s.setJobProgress(job.ID, 100, "SUCCESS")
 	return job, true
 }
 
@@ -296,19 +303,9 @@ func (s *Store) newJob(jobType string, projectID string, targetID string) *Job {
 	_, _ = s.db.Exec(`INSERT INTO jobs (id,type,status,progress,error_message,project_id,target_id) VALUES (?,?,?,?,?,?,?)`,
 		id, jobType, j.Status, j.Progress, "", projectID, targetID,
 	)
-
-	go func(jobID string) {
-		for p := 10; p <= 100; p += 10 {
-			time.Sleep(200 * time.Millisecond)
-			s.mu.Lock()
-			status := "RUNNING"
-			if p == 100 {
-				status = "SUCCESS"
-			}
-			_, _ = s.db.Exec(`UPDATE jobs SET progress=?, status=? WHERE id=?`, p, status, jobID)
-			s.mu.Unlock()
-		}
-	}(id)
-
 	return j
+}
+
+func (s *Store) setJobProgress(jobID string, progress int, status string) {
+	_, _ = s.db.Exec(`UPDATE jobs SET progress=?, status=? WHERE id=?`, progress, status, jobID)
 }
