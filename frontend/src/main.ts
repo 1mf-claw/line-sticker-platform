@@ -140,6 +140,23 @@ createApp({
           error.value = '請先填入 API Key'
           return
         }
+        const textModelValue = textCustom.value || textModel.value
+        const imageModelValue = imageCustom.value || imageModel.value
+        const bgModelValue = bgCustom.value || bgModel.value
+
+        if (!textProvider.value || !textModelValue) {
+          error.value = '請完成文字生成的供應商與模型'
+          return
+        }
+        if (!imageProvider.value || !imageModelValue) {
+          error.value = '請完成圖像生成的供應商與模型'
+          return
+        }
+        if (!bgProvider.value || !bgModelValue) {
+          error.value = '請完成去背的供應商與模型'
+          return
+        }
+
         await api.setAICredentials(project.value.id, {
           aiProvider: selectedProvider.value,
           apiKey: apiKey.value,
@@ -151,11 +168,11 @@ createApp({
         })
         await api.updateAIPipeline(project.value.id, {
           textProvider: textProvider.value,
-          textModel: textCustom.value || textModel.value,
+          textModel: textModelValue,
           imageProvider: imageProvider.value,
-          imageModel: imageCustom.value || imageModel.value,
+          imageModel: imageModelValue,
           bgProvider: bgProvider.value,
-          bgModel: bgCustom.value || bgModel.value,
+          bgModel: bgModelValue,
         })
         await api.verifyAICredentials(project.value.id)
         project.value = await api.updateProject(project.value.id, {
@@ -335,7 +352,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>文字生成</strong><br/>
+          <strong>文字生成</strong>（必填）<br/>
           <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })">
             <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
@@ -346,7 +363,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>圖像生成</strong><br/>
+          <strong>圖像生成</strong>（必填）<br/>
           <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })">
             <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
@@ -357,7 +374,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>去背</strong><br/>
+          <strong>去背</strong>（必填）<br/>
           <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })">
             <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
