@@ -37,6 +37,7 @@ createApp({
     const providers = ref<Provider[]>([])
     const selectedProvider = ref('openai')
     const selectedModel = ref('gpt-4o-mini')
+    const customModel = ref('')
     const apiKey = ref('')
     const apiBase = ref('')
 
@@ -64,6 +65,7 @@ createApp({
       if (p && p.models.length > 0) {
         selectedModel.value = p.models[0]
       }
+      customModel.value = ''
     })
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -125,7 +127,7 @@ createApp({
         })
         await api.updateAIConfig(project.value.id, {
           aiProvider: selectedProvider.value,
-          aiModel: selectedModel.value,
+          aiModel: customModel.value || selectedModel.value,
         })
         await api.verifyAICredentials(project.value.id)
         project.value = await api.updateProject(project.value.id, {
@@ -207,6 +209,7 @@ createApp({
       providers,
       selectedProvider,
       selectedModel,
+      customModel,
       apiKey,
       apiBase,
       characterReq,
@@ -286,6 +289,11 @@ createApp({
           <select v-model="selectedModel">
             <option v-for="m in (providers.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
+        </div>
+
+        <div style="margin: 8px 0;">
+          <label>自訂模型 ID（可選）</label>
+          <input v-model="customModel" placeholder="replicate model version / openai model" style="width:100%; margin:6px 0;" />
         </div>
 
         <div style="margin: 8px 0;">
