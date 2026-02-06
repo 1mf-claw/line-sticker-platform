@@ -114,17 +114,20 @@ createApp({
     const updateTheme = () =>
       run(async () => {
         if (!project.value) return
-        if (apiKey.value) {
-          await api.setAICredentials(project.value.id, {
-            aiProvider: selectedProvider.value,
-            apiKey: apiKey.value,
-            apiBase: apiBase.value || undefined,
-          })
+        if (!apiKey.value) {
+          error.value = '請先填入 API Key'
+          return
         }
+        await api.setAICredentials(project.value.id, {
+          aiProvider: selectedProvider.value,
+          apiKey: apiKey.value,
+          apiBase: apiBase.value || undefined,
+        })
         await api.updateAIConfig(project.value.id, {
           aiProvider: selectedProvider.value,
           aiModel: selectedModel.value,
         })
+        await api.verifyAICredentials(project.value.id)
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })

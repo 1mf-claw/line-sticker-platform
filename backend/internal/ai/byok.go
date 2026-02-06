@@ -19,7 +19,22 @@ func (p BYOKPipeline) Validate() error {
 	if p.APIKey == "" {
 		return errors.New("api key required")
 	}
-	return nil
+	adapter := adapterFor(p.Provider)
+	if adapter == nil {
+		return errors.New("unsupported provider")
+	}
+	return adapter.Validate(p.APIKey, p.APIBase, p.Model)
+}
+
+func adapterFor(provider string) ProviderAdapter {
+	switch provider {
+	case "openai":
+		return OpenAIAdapter{}
+	case "replicate":
+		return ReplicateAdapter{}
+	default:
+		return nil
+	}
 }
 
 func (p BYOKPipeline) GenerateDrafts(theme string, count int, character CharacterInput) ([]DraftIdea, error) {

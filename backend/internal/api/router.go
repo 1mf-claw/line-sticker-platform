@@ -127,6 +127,20 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /projects/{projectId}/ai-verify
+	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "ai-verify" {
+		if r.Method == http.MethodPost {
+			if err := store.VerifyAICredentials(segments[1]); err != nil {
+				writeStatus(w, http.StatusBadRequest)
+				return
+			}
+			writeStatus(w, http.StatusNoContent)
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	// /projects/{projectId}/theme:suggest
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "theme:suggest" {
 		if r.Method == http.MethodPost {

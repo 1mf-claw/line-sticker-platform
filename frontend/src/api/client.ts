@@ -59,6 +59,11 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
+  verifyAICredentials: (projectId: string) =>
+    request<void>(`/projects/${projectId}/ai-verify`, {
+      method: 'POST',
+    }),
+
   createCharacter: (projectId: string, body: CharacterCreateRequest) =>
     request<Character>(`/projects/${projectId}/character`, {
       method: 'POST',

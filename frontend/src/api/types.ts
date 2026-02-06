@@ -38,6 +38,10 @@ export type AICredentialsRequest = {
   apiBase?: string
 }
 
+export type AIVerifyRequest = {
+  projectId: string
+}
+
 export type CharacterCreateRequest = {
   sourceType: 'AI' | 'UPLOAD' | 'HISTORY'
   prompt?: string
