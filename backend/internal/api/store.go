@@ -164,7 +164,8 @@ func (s *Store) GenerateDrafts(projectID string) (*Job, bool) {
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "GENERATING_DRAFTS", projectID)
 
 	charInput := s.getCharacterInput(projectID)
-	ideas, _ := s.ai.GenerateDrafts(p.Theme, p.StickerCount, charInput)
+	pipeline, _ := s.getPipeline(projectID)
+	ideas, _ := pipeline.GenerateDrafts(p.Theme, p.StickerCount, charInput)
 	for i := 1; i <= p.StickerCount; i++ {
 		id := newID("draft")
 		caption := fmt.Sprintf("草稿 %d", i)
@@ -219,10 +220,11 @@ func (s *Store) GenerateStickers(projectID string) (*Job, bool) {
 	rows, _ := s.db.Query(`SELECT id,image_prompt FROM drafts WHERE project_id=?`, projectID)
 	defer rows.Close()
 	charInput := s.getCharacterInput(projectID)
+	pipeline, _ := s.getPipeline(projectID)
 	for rows.Next() {
 		var draftID, prompt string
 		_ = rows.Scan(&draftID, &prompt)
-		imageURL, _ := s.ai.GenerateImage(prompt, charInput)
+		imageURL, _ := pipeline.GenerateImage(prompt, charInput)
 		id := newID("stk")
 		_, _ = s.db.Exec(`INSERT INTO stickers (id,project_id,draft_id,image_url,transparent_url,status) VALUES (?,?,?,?,?,?)`,
 			id, projectID, draftID, imageURL, "", "READY",
@@ -254,10 +256,11 @@ func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 	defer s.mu.Unlock()
 	rows, _ := s.db.Query(`SELECT id,image_url FROM stickers WHERE project_id=?`, projectID)
 	defer rows.Close()
+	pipeline, _ := s.getPipeline(projectID)
 	for rows.Next() {
 		var id, imageURL string
 		_ = rows.Scan(&id, &imageURL)
-		transparentURL, _ := s.ai.RemoveBackground(imageURL)
+		transparentURL, _ := pipeline.RemoveBackground(imageURL)
 		_, _ = s.db.Exec(`UPDATE stickers SET transparent_url=? WHERE id=?`, transparentURL, id)
 	}
 	job := s.newJob("REMOVE_BG", projectID, "")
@@ -285,7 +288,8 @@ func (s *Store) RegenerateSticker(stickerID string) (*Job, bool) {
 	var prompt string
 	_ = promptRow.Scan(&prompt)
 	charInput := s.getCharacterInput(projectID)
-	imageURL, _ := s.ai.GenerateImage(prompt, charInput)
+	pipeline, _ := s.getPipeline(projectID)
+	imageURL, _ := pipeline.GenerateImage(prompt, charInput)
 	_, _ = s.db.Exec(`UPDATE stickers SET image_url=?, status=? WHERE id=?`, imageURL, "READY", stickerID)
 	job := s.newJob("GENERATE_IMAGE", projectID, stickerID)
 	// regenerate finished
