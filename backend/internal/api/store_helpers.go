@@ -19,3 +19,15 @@ func (s *Store) getProjectAI(projectID string) (string, string) {
 	_ = row.Scan(&provider, &model)
 	return provider, model
 }
+
+func resolveProviderModel(primaryProvider, primaryModel, fallbackProvider, fallbackModel string) (string, string) {
+	provider := primaryProvider
+	model := primaryModel
+	if provider == "" {
+		provider = fallbackProvider
+	}
+	if model == "" {
+		model = fallbackModel
+	}
+	return provider, model
+}

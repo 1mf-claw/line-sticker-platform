@@ -38,6 +38,18 @@ createApp({
     const selectedProvider = ref('openai')
     const selectedModel = ref('gpt-4o-mini')
     const customModel = ref('')
+
+    const textProvider = ref('openai')
+    const textModel = ref('gpt-4o-mini')
+    const textCustom = ref('')
+
+    const imageProvider = ref('openai')
+    const imageModel = ref('gpt-4o-mini')
+    const imageCustom = ref('')
+
+    const bgProvider = ref('openai')
+    const bgModel = ref('gpt-4o-mini')
+    const bgCustom = ref('')
     const apiKey = ref('')
     const apiBase = ref('')
 
@@ -67,6 +79,14 @@ createApp({
       }
       customModel.value = ''
     })
+
+    const syncDefaultModel = (providerRef: any, modelRef: any, customRef: any) => {
+      const p = providers.value.find((x) => x.id === providerRef.value)
+      if (p && p.models.length > 0) {
+        modelRef.value = p.models[0]
+      }
+      customRef.value = ''
+    }
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -128,6 +148,14 @@ createApp({
         await api.updateAIConfig(project.value.id, {
           aiProvider: selectedProvider.value,
           aiModel: customModel.value || selectedModel.value,
+        })
+        await api.updateAIPipeline(project.value.id, {
+          textProvider: textProvider.value,
+          textModel: textCustom.value || textModel.value,
+          imageProvider: imageProvider.value,
+          imageModel: imageCustom.value || imageModel.value,
+          bgProvider: bgProvider.value,
+          bgModel: bgCustom.value || bgModel.value,
         })
         await api.verifyAICredentials(project.value.id)
         project.value = await api.updateProject(project.value.id, {
@@ -211,6 +239,15 @@ createApp({
       selectedProvider,
       selectedModel,
       customModel,
+      textProvider,
+      textModel,
+      textCustom,
+      imageProvider,
+      imageModel,
+      imageCustom,
+      bgProvider,
+      bgModel,
+      bgCustom,
       apiKey,
       apiBase,
       characterReq,
@@ -281,20 +318,53 @@ createApp({
         <input v-model="theme" style="width: 100%; margin: 8px 0;" />
 
         <div style="margin: 8px 0;">
-          <label>AI 供應商</label>
+          <label>預設 AI 供應商</label>
           <select v-model="selectedProvider">
             <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
 
-          <label style="margin-left:8px;">模型</label>
+          <label style="margin-left:8px;">預設模型</label>
           <select v-model="selectedModel">
             <option v-for="m in (providers.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
 
         <div style="margin: 8px 0;">
-          <label>自訂模型 ID（可選）</label>
+          <label>預設自訂模型 ID（可選）</label>
           <input v-model="customModel" placeholder="replicate model version / openai model" style="width:100%; margin:6px 0;" />
+        </div>
+
+        <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
+          <strong>文字生成</strong><br/>
+          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })">
+            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+          </select>
+          <select v-model="textModel">
+            <option v-for="m in (providers.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+          </select>
+          <input v-model="textCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
+        </div>
+
+        <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
+          <strong>圖像生成</strong><br/>
+          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })">
+            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+          </select>
+          <select v-model="imageModel">
+            <option v-for="m in (providers.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+          </select>
+          <input v-model="imageCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
+        </div>
+
+        <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
+          <strong>去背</strong><br/>
+          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })">
+            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+          </select>
+          <select v-model="bgModel">
+            <option v-for="m in (providers.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+          </select>
+          <input v-model="bgCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
         </div>
 
         <div style="margin: 8px 0;">

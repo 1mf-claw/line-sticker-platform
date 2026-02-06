@@ -9,8 +9,15 @@ type Project struct {
 	StickerCount int           `json:"stickerCount"`
 	Status       ProjectStatus `json:"status"`
 	CharacterID  string        `json:"characterId"`
-	AIProvider   string        `json:"aiProvider"`
-	AIModel      string        `json:"aiModel"`
+
+	AIProvider   string `json:"aiProvider"`
+	AIModel      string `json:"aiModel"`
+	TextProvider string `json:"textProvider"`
+	TextModel    string `json:"textModel"`
+	ImageProvider string `json:"imageProvider"`
+	ImageModel    string `json:"imageModel"`
+	BgProvider    string `json:"bgProvider"`
+	BgModel       string `json:"bgModel"`
 }
 
 type ProjectCreateRequest struct {
@@ -25,6 +32,15 @@ type ProjectUpdateRequest struct {
 type AIConfigUpdateRequest struct {
 	AIProvider string `json:"aiProvider"`
 	AIModel    string `json:"aiModel"`
+}
+
+type AIPipelineConfigRequest struct {
+	TextProvider  string `json:"textProvider"`
+	TextModel     string `json:"textModel"`
+	ImageProvider string `json:"imageProvider"`
+	ImageModel    string `json:"imageModel"`
+	BgProvider    string `json:"bgProvider"`
+	BgModel       string `json:"bgModel"`
 }
 
 type AICredentialsRequest struct {

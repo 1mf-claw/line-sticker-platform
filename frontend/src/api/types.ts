@@ -16,6 +16,12 @@ export type Project = {
   characterId?: string
   aiProvider?: string
   aiModel?: string
+  textProvider?: string
+  textModel?: string
+  imageProvider?: string
+  imageModel?: string
+  bgProvider?: string
+  bgModel?: string
 }
 
 export type ProjectCreateRequest = {
@@ -36,6 +42,15 @@ export type AICredentialsRequest = {
   aiProvider: string
   apiKey: string
   apiBase?: string
+}
+
+export type AIPipelineConfigRequest = {
+  textProvider?: string
+  textModel?: string
+  imageProvider?: string
+  imageModel?: string
+  bgProvider?: string
+  bgModel?: string
 }
 
 export type AIVerifyRequest = {

@@ -10,6 +10,7 @@ import type {
   ProjectUpdateRequest,
   AIConfigUpdateRequest,
   AICredentialsRequest,
+  AIPipelineConfigRequest,
   Provider,
   Sticker,
   ThemeSuggestResponse,
@@ -47,6 +48,12 @@ export const api = {
 
   updateAIConfig: (projectId: string, body: AIConfigUpdateRequest) =>
     request<Project>(`/projects/${projectId}/ai-config`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  updateAIPipeline: (projectId: string, body: AIPipelineConfigRequest) =>
+    request<Project>(`/projects/${projectId}/ai-pipeline`, {
       method: 'PATCH',
       body: JSON.stringify(body),
     }),

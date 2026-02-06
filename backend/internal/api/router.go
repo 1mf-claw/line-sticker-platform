@@ -109,6 +109,24 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /projects/{projectId}/ai-pipeline
+	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "ai-pipeline" {
+		if r.Method == http.MethodPatch {
+			var req AIPipelineConfigRequest
+			if !decodeJSON(w, r, &req) {
+				return
+			}
+			if p, ok := store.UpdateProjectPipeline(segments[1], req); ok {
+				writeJSON(w, http.StatusOK, p)
+				return
+			}
+			writeStatus(w, http.StatusNotFound)
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	// /projects/{projectId}/ai-credentials
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "ai-credentials" {
 		if r.Method == http.MethodPost {

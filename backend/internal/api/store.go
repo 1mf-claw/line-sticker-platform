@@ -37,7 +37,13 @@ func (s *Store) migrate() {
 			status TEXT,
 			character_id TEXT,
 			ai_provider TEXT,
-			ai_model TEXT
+			ai_model TEXT,
+			text_provider TEXT,
+			text_model TEXT,
+			image_provider TEXT,
+			image_model TEXT,
+			bg_provider TEXT,
+			bg_model TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS characters (
 			id TEXT PRIMARY KEY,
@@ -81,6 +87,12 @@ func (s *Store) migrate() {
 	// Add columns for legacy DBs
 	s.ensureColumn("projects", "ai_provider", "TEXT")
 	s.ensureColumn("projects", "ai_model", "TEXT")
+	s.ensureColumn("projects", "text_provider", "TEXT")
+	s.ensureColumn("projects", "text_model", "TEXT")
+	s.ensureColumn("projects", "image_provider", "TEXT")
+	s.ensureColumn("projects", "image_model", "TEXT")
+	s.ensureColumn("projects", "bg_provider", "TEXT")
+	s.ensureColumn("projects", "bg_model", "TEXT")
 }
 
 func newID(prefix string) string {
@@ -92,8 +104,9 @@ func (s *Store) CreateProject(title string, stickerCount int) *Project {
 	defer s.mu.Unlock()
 	id := newID("proj")
 	_, _ = s.db.Exec(
-		`INSERT INTO projects (id,title,theme,sticker_count,status,character_id,ai_provider,ai_model) VALUES (?,?,?,?,?,?,?,?)`,
-		id, title, "", stickerCount, "DRAFT", "", "", "",
+		`INSERT INTO projects (id,title,theme,sticker_count,status,character_id,ai_provider,ai_model,text_provider,text_model,image_provider,image_model,bg_provider,bg_model)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		id, title, "", stickerCount, "DRAFT", "", "", "", "", "", "", "", "", "",
 	)
 	return &Project{ID: id, Title: title, StickerCount: stickerCount, Status: "DRAFT"}
 }
@@ -112,9 +125,9 @@ func (s *Store) UpdateProjectTheme(projectID string, theme string) (*Project, bo
 func (s *Store) GetProject(projectID string) (*Project, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	row := s.db.QueryRow(`SELECT id,title,theme,sticker_count,status,character_id,ai_provider,ai_model FROM projects WHERE id=?`, projectID)
+	row := s.db.QueryRow(`SELECT id,title,theme,sticker_count,status,character_id,ai_provider,ai_model,text_provider,text_model,image_provider,image_model,bg_provider,bg_model FROM projects WHERE id=?`, projectID)
 	p := &Project{}
-	if err := row.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID, &p.AIProvider, &p.AIModel); err != nil {
+	if err := row.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID, &p.AIProvider, &p.AIModel, &p.TextProvider, &p.TextModel, &p.ImageProvider, &p.ImageModel, &p.BgProvider, &p.BgModel); err != nil {
 		return nil, false
 	}
 	return p, true
@@ -123,12 +136,12 @@ func (s *Store) GetProject(projectID string) (*Project, bool) {
 func (s *Store) ListProjects() []*Project {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	rows, _ := s.db.Query(`SELECT id,title,theme,sticker_count,status,character_id,ai_provider,ai_model FROM projects`)
+	rows, _ := s.db.Query(`SELECT id,title,theme,sticker_count,status,character_id,ai_provider,ai_model,text_provider,text_model,image_provider,image_model,bg_provider,bg_model FROM projects`)
 	defer rows.Close()
 	out := []*Project{}
 	for rows.Next() {
 		p := &Project{}
-		_ = rows.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID, &p.AIProvider, &p.AIModel)
+		_ = rows.Scan(&p.ID, &p.Title, &p.Theme, &p.StickerCount, &p.Status, &p.CharacterID, &p.AIProvider, &p.AIModel, &p.TextProvider, &p.TextModel, &p.ImageProvider, &p.ImageModel, &p.BgProvider, &p.BgModel)
 		out = append(out, p)
 	}
 	return out
@@ -164,7 +177,9 @@ func (s *Store) GenerateDrafts(projectID string) (*Job, bool) {
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "GENERATING_DRAFTS", projectID)
 
 	charInput := s.getCharacterInput(projectID)
-	pipeline, _ := s.getPipeline(projectID)
+	fbProvider, fbModel := p.AIProvider, p.AIModel
+	textProvider, textModel := resolveProviderModel(p.TextProvider, p.TextModel, fbProvider, fbModel)
+	pipeline, _ := s.getTaskPipeline(projectID, textProvider, textModel)
 	ideas, _ := pipeline.GenerateDrafts(p.Theme, p.StickerCount, charInput)
 	for i := 1; i <= p.StickerCount; i++ {
 		id := newID("draft")
@@ -216,11 +231,17 @@ func (s *Store) UpdateDraft(draftID string, req DraftUpdateRequest) (*Draft, boo
 func (s *Store) GenerateStickers(projectID string) (*Job, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	p, ok := s.GetProject(projectID)
+	if !ok {
+		return nil, false
+	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "GENERATING_IMAGES", projectID)
 	rows, _ := s.db.Query(`SELECT id,image_prompt FROM drafts WHERE project_id=?`, projectID)
 	defer rows.Close()
 	charInput := s.getCharacterInput(projectID)
-	pipeline, _ := s.getPipeline(projectID)
+	fbProvider, fbModel := p.AIProvider, p.AIModel
+	imageProvider, imageModel := resolveProviderModel(p.ImageProvider, p.ImageModel, fbProvider, fbModel)
+	pipeline, _ := s.getTaskPipeline(projectID, imageProvider, imageModel)
 	for rows.Next() {
 		var draftID, prompt string
 		_ = rows.Scan(&draftID, &prompt)
@@ -254,9 +275,15 @@ func (s *Store) ListStickers(projectID string) []*Sticker {
 func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	p, ok := s.GetProject(projectID)
+	if !ok {
+		return nil, false
+	}
 	rows, _ := s.db.Query(`SELECT id,image_url FROM stickers WHERE project_id=?`, projectID)
 	defer rows.Close()
-	pipeline, _ := s.getPipeline(projectID)
+	fbProvider, fbModel := p.AIProvider, p.AIModel
+	bgProvider, bgModel := resolveProviderModel(p.BgProvider, p.BgModel, fbProvider, fbModel)
+	pipeline, _ := s.getTaskPipeline(projectID, bgProvider, bgModel)
 	for rows.Next() {
 		var id, imageURL string
 		_ = rows.Scan(&id, &imageURL)
@@ -288,7 +315,10 @@ func (s *Store) RegenerateSticker(stickerID string) (*Job, bool) {
 	var prompt string
 	_ = promptRow.Scan(&prompt)
 	charInput := s.getCharacterInput(projectID)
-	pipeline, _ := s.getPipeline(projectID)
+	p, _ := s.GetProject(projectID)
+	fbProvider, fbModel := p.AIProvider, p.AIModel
+	imageProvider, imageModel := resolveProviderModel(p.ImageProvider, p.ImageModel, fbProvider, fbModel)
+	pipeline, _ := s.getTaskPipeline(projectID, imageProvider, imageModel)
 	imageURL, _ := pipeline.GenerateImage(prompt, charInput)
 	_, _ = s.db.Exec(`UPDATE stickers SET image_url=?, status=? WHERE id=?`, imageURL, "READY", stickerID)
 	job := s.newJob("GENERATE_IMAGE", projectID, stickerID)
