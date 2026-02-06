@@ -71,6 +71,9 @@ export const api = {
       method: 'POST',
     }),
 
+  listVerifiedProviders: (projectId: string) =>
+    request<{ providers: Provider[] }>(`/projects/${projectId}/verified-providers`),
+
   createCharacter: (projectId: string, body: CharacterCreateRequest) =>
     request<Character>(`/projects/${projectId}/character`, {
       method: 'POST',

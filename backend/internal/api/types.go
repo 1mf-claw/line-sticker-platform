@@ -43,6 +43,10 @@ type AIPipelineConfigRequest struct {
 	BgModel       string `json:"bgModel"`
 }
 
+type VerifiedProvidersResponse struct {
+	Providers []Provider `json:"providers"`
+}
+
 type AICredentialsRequest struct {
 	AIProvider string `json:"aiProvider"`
 	APIKey     string `json:"apiKey"`

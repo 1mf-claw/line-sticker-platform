@@ -35,6 +35,7 @@ createApp({
     const stickerCount = ref<8 | 16 | 24 | 40>(8)
 
     const providers = ref<Provider[]>([])
+    const verifiedProviders = ref<Provider[]>([])
     const selectedProvider = ref('openai')
     const selectedModel = ref('gpt-4o-mini')
     const customModel = ref('')
@@ -175,6 +176,8 @@ createApp({
           bgModel: bgModelValue,
         })
         await api.verifyAICredentials(project.value.id)
+        const verified = await api.listVerifiedProviders(project.value.id)
+        verifiedProviders.value = verified.providers || []
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
@@ -253,6 +256,7 @@ createApp({
       theme,
       stickerCount,
       providers,
+      verifiedProviders,
       selectedProvider,
       selectedModel,
       customModel,
@@ -354,10 +358,10 @@ createApp({
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>文字生成</strong>（必填）<br/>
           <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })">
-            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
           <select v-model="textModel">
-            <option v-for="m in (providers.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+            <option v-for="m in (verifiedProviders.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
           <input v-model="textCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
         </div>
@@ -365,10 +369,10 @@ createApp({
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>圖像生成</strong>（必填）<br/>
           <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })">
-            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
           <select v-model="imageModel">
-            <option v-for="m in (providers.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+            <option v-for="m in (verifiedProviders.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
           <input v-model="imageCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
         </div>
@@ -376,10 +380,10 @@ createApp({
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>去背</strong>（必填）<br/>
           <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })">
-            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name }}</option>
           </select>
           <select v-model="bgModel">
-            <option v-for="m in (providers.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+            <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
           <input v-model="bgCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
         </div>

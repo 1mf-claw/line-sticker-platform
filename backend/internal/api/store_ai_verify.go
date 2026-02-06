@@ -7,13 +7,34 @@ import (
 )
 
 func (s *Store) VerifyAICredentials(projectID string) error {
-	provider, model := s.getProjectAI(projectID)
+	p, ok := s.GetProject(projectID)
+	if !ok {
+		return errors.New("project not found")
+	}
 	cred, ok := s.GetAICredentials(projectID)
 	if !ok {
 		return errors.New("missing credentials")
 	}
-	p := aiPipelineFrom(provider, model, cred)
-	return p.Validate()
+	// verify default
+	if err := aiPipelineFrom(p.AIProvider, p.AIModel, cred).Validate(); err != nil {
+		return err
+	}
+	// verify per-task configs
+	if err := aiPipelineFrom(p.TextProvider, p.TextModel, cred).Validate(); err != nil {
+		return err
+	}
+	if err := aiPipelineFrom(p.ImageProvider, p.ImageModel, cred).Validate(); err != nil {
+		return err
+	}
+	if err := aiPipelineFrom(p.BgProvider, p.BgModel, cred).Validate(); err != nil {
+		return err
+	}
+	// record verified models
+	s.addVerified(projectID, p.AIProvider, p.AIModel)
+	s.addVerified(projectID, p.TextProvider, p.TextModel)
+	s.addVerified(projectID, p.ImageProvider, p.ImageModel)
+	s.addVerified(projectID, p.BgProvider, p.BgModel)
+	return nil
 }
 
 func aiPipelineFrom(provider string, model string, cred AICredentialsRequest) aiPipeline {

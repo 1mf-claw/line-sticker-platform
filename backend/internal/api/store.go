@@ -13,7 +13,8 @@ type Store struct {
 	mu sync.Mutex
 	db *sql.DB
 	ai ai.Pipeline
-	aiSecrets map[string]AICredentialsRequest
+	aiSecrets  map[string]AICredentialsRequest
+	aiVerified map[string]map[string][]string
 }
 
 func NewStore() *Store {
@@ -22,7 +23,7 @@ func NewStore() *Store {
 		panic(err)
 	}
 
-	s := &Store{db: db, ai: ai.MockPipeline{}, aiSecrets: map[string]AICredentialsRequest{}}
+	s := &Store{db: db, ai: ai.MockPipeline{}, aiSecrets: map[string]AICredentialsRequest{}, aiVerified: map[string]map[string][]string{}}
 	s.migrate()
 	return s
 }

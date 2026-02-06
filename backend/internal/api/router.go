@@ -159,6 +159,16 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /projects/{projectId}/verified-providers
+	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "verified-providers" {
+		if r.Method == http.MethodGet {
+			writeJSON(w, http.StatusOK, VerifiedProvidersResponse{Providers: store.ListVerifiedProviders(segments[1])})
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	// /projects/{projectId}/theme:suggest
 	if len(segments) == 3 && segments[0] == "projects" && segments[2] == "theme:suggest" {
 		if r.Method == http.MethodPost {
