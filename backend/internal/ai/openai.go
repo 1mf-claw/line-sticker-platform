@@ -56,7 +56,9 @@ func (a OpenAIAdapter) GenerateDrafts(apiKey, apiBase, model, theme string, coun
 	}
 
 	body, _ := json.Marshal(payload)
-	respBody, err := doJSON(base+"/v1/chat/completions", apiKey, body)
+	respBody, err := retry(3, 300*time.Millisecond, func() ([]byte, error) {
+		return doJSON(base+"/v1/chat/completions", apiKey, body)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +86,9 @@ func (a OpenAIAdapter) GenerateImage(apiKey, apiBase, model, prompt string, char
 		Size:   "1024x1024",
 	}
 	body, _ := json.Marshal(payload)
-	respBody, err := doJSON(base+"/v1/images/generations", apiKey, body)
+	respBody, err := retry(3, 300*time.Millisecond, func() ([]byte, error) {
+		return doJSON(base+"/v1/images/generations", apiKey, body)
+	})
 	if err != nil {
 		return "", err
 	}

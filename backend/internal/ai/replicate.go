@@ -51,7 +51,9 @@ func (a ReplicateAdapter) GenerateImage(apiKey, apiBase, model, prompt string, c
 		},
 	}
 	body, _ := json.Marshal(payload)
-	respBody, err := doReplicateJSON(base+"/predictions", apiKey, body)
+	respBody, err := retry(3, 300*time.Millisecond, func() ([]byte, error) {
+		return doReplicateJSON(base+"/predictions", apiKey, body)
+	})
 	if err != nil {
 		return "", err
 	}
@@ -63,7 +65,9 @@ func (a ReplicateAdapter) GenerateImage(apiKey, apiBase, model, prompt string, c
 	if r.URLs.Get == "" {
 		return "", errors.New("no prediction url")
 	}
-	out, err := replicatePoll(r.URLs.Get, apiKey)
+	out, err := retry(3, 300*time.Millisecond, func() (interface{}, error) {
+		return replicatePoll(r.URLs.Get, apiKey)
+	})
 	if err != nil {
 		return "", err
 	}
