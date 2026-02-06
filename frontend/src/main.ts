@@ -133,6 +133,7 @@ createApp({
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
+        error.value = 'API Key 驗證成功'
         next('DRAFTS')
       })
 

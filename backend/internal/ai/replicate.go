@@ -36,7 +36,52 @@ func (a ReplicateAdapter) Validate(apiKey string, apiBase string, model string) 
 }
 
 func (a ReplicateAdapter) GenerateDrafts(apiKey, apiBase, model, theme string, count int, character CharacterInput) ([]DraftIdea, error) {
-	return nil, errors.New("replicate text generation not implemented")
+	base := apiBase
+	if base == "" {
+		base = "https://api.replicate.com/v1"
+	}
+	payload := replicateRequest{
+		Version: model,
+		Input: map[string]interface{}{
+			"prompt": "Theme: " + theme + ", Character: " + character.Prompt + ", Count: " + itoa(count),
+		},
+	}
+	body, _ := json.Marshal(payload)
+	respBody, err := retry(3, 300*time.Millisecond, func() ([]byte, error) {
+		return doReplicateJSON(base+"/predictions", apiKey, body)
+	})
+	if err != nil {
+		return nil, err
+	}
+	var r replicateResponse
+	if err := json.Unmarshal(respBody, &r); err != nil {
+		return nil, err
+	}
+	if r.URLs.Get == "" {
+		return nil, errors.New("no prediction url")
+	}
+	out, err := retry(3, 300*time.Millisecond, func() (interface{}, error) {
+		return replicatePoll(r.URLs.Get, apiKey)
+	})
+	if err != nil {
+		return nil, err
+	}
+	if arr, ok := out.([]interface{}); ok {
+		ideas := []DraftIdea{}
+		for _, item := range arr {
+			if m, ok := item.(map[string]interface{}); ok {
+				caption, _ := m["caption"].(string)
+				prompt, _ := m["imagePrompt"].(string)
+				ideas = append(ideas, DraftIdea{Caption: caption, ImagePrompt: prompt})
+				continue
+			}
+			if s, ok := item.(string); ok {
+				ideas = append(ideas, DraftIdea{Caption: s, ImagePrompt: s})
+			}
+		}
+		return ideas, nil
+	}
+	return nil, errors.New("unexpected output")
 }
 
 func (a ReplicateAdapter) GenerateImage(apiKey, apiBase, model, prompt string, character CharacterInput) (string, error) {
