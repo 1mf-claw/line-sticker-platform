@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const props = defineProps<{ message: string; type?: 'error' | 'success' | 'info' }>()
 
 const styleObj = computed(() => {
@@ -17,9 +19,4 @@ const styleObj = computed(() => {
   if (props.type === 'error') return { ...base, color: '#7f1d1d', background: '#fee2e2' }
   return { ...base, color: '#334155', background: '#e2e8f0' }
 })
-</script>
-
-<script lang="ts">
-import { computed } from 'vue'
-export default {}
 </script>
