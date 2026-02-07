@@ -283,7 +283,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 				writeJSON(w, http.StatusOK, res)
 				return
 			}
-			writeStatus(w, http.StatusNotFound)
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "export failed"})
 			return
 		}
 		writeStatus(w, http.StatusMethodNotAllowed)

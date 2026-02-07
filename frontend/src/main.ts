@@ -276,6 +276,7 @@ createApp({
         downloadUrl.value = res.downloadUrl
         if (res.warnings && res.warnings.length > 0) {
           error.value = '輸出完成，但有部分貼圖未通過檢核'
+          success.value = res.warnings.join('，')
         } else {
           success.value = '輸出成功，已完成規格檢核'
         }

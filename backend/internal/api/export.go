@@ -58,6 +58,10 @@ func buildExportZip(projectID string, stickers []Sticker) (string, []string, err
 			warnings = append(warnings, fmt.Sprintf("%s invalid size", s.ID))
 			continue
 		}
+		if ok := validatePNGAlpha(data); !ok {
+			warnings = append(warnings, fmt.Sprintf("%s missing alpha", s.ID))
+			continue
+		}
 		name := fmt.Sprintf("%02d.png", i+1)
 		w, err := zw.Create(name)
 		if err != nil {
