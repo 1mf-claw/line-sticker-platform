@@ -336,6 +336,7 @@ func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
 	}
+	log.Printf("writeJSON %d bytes", len(buf))
 }
 
 func writeStatus(w http.ResponseWriter, code int) {
