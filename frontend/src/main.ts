@@ -186,6 +186,293 @@ createApp({
           ja: '次へ',
           ko: '다음',
         },
+        'button.retry': {
+          'zh-TW': '重試',
+          'zh-CN': '重试',
+          en: 'Retry',
+          ja: '再試行',
+          ko: '다시 시도',
+        },
+        'label.source': {
+          'zh-TW': '來源',
+          'zh-CN': '来源',
+          en: 'Source',
+          ja: 'ソース',
+          ko: '소스',
+        },
+        'label.character': {
+          'zh-TW': '角色描述',
+          'zh-CN': '角色描述',
+          en: 'Character Prompt',
+          ja: 'キャラクター',
+          ko: '캐릭터 설명',
+        },
+        'label.referenceUrl': {
+          'zh-TW': 'Reference 圖片 URL',
+          'zh-CN': 'Reference 图片 URL',
+          en: 'Reference Image URL',
+          ja: '参照画像URL',
+          ko: '레퍼런스 이미지 URL',
+        },
+        'label.theme': {
+          'zh-TW': '主題',
+          'zh-CN': '主题',
+          en: 'Theme',
+          ja: 'テーマ',
+          ko: '테마',
+        },
+        'label.defaultProvider': {
+          'zh-TW': '預設 AI 供應商（僅顯示已驗證）',
+          'zh-CN': '默认 AI 供应商（仅显示已验证）',
+          en: 'Default Provider (verified only)',
+          ja: '既定プロバイダ（検証済みのみ）',
+          ko: '기본 공급자(검증됨만)',
+        },
+        'label.defaultModel': {
+          'zh-TW': '預設模型',
+          'zh-CN': '默认模型',
+          en: 'Default Model',
+          ja: '既定モデル',
+          ko: '기본 모델',
+        },
+        'label.customModel': {
+          'zh-TW': '預設自訂模型 ID（可選）',
+          'zh-CN': '默认自定义模型 ID（可选）',
+          en: 'Custom Model ID (optional)',
+          ja: 'カスタムモデルID（任意）',
+          ko: '사용자 모델 ID(선택)',
+        },
+        'label.textGen': {
+          'zh-TW': '文字生成',
+          'zh-CN': '文本生成',
+          en: 'Text Generation',
+          ja: 'テキスト生成',
+          ko: '텍스트 생성',
+        },
+        'label.imageGen': {
+          'zh-TW': '圖像生成',
+          'zh-CN': '图像生成',
+          en: 'Image Generation',
+          ja: '画像生成',
+          ko: '이미지 생성',
+        },
+        'label.bgRemove': {
+          'zh-TW': '去背',
+          'zh-CN': '去背',
+          en: 'Background Removal',
+          ja: '背景除去',
+          ko: '배경 제거',
+        },
+        'label.apiKey': {
+          'zh-TW': 'API Key（只會暫存於記憶體）',
+          'zh-CN': 'API Key（仅暂存于内存）',
+          en: 'API Key (in-memory only)',
+          ja: 'APIキー（メモリのみ）',
+          ko: 'API 키(메모리만)',
+        },
+        'label.apiBase': {
+          'zh-TW': 'API Base（可選）',
+          'zh-CN': 'API Base（可选）',
+          en: 'API Base (optional)',
+          ja: 'API Base（任意）',
+          ko: 'API Base(선택)',
+        },
+        'helper.verifyFirst': {
+          'zh-TW': '完成驗證後，才能選擇下方模型',
+          'zh-CN': '完成验证后才能选择下方模型',
+          en: 'Verify first to enable model selection',
+          ja: '検証後にモデル選択が可能です',
+          ko: '검증 후 모델을 선택하세요',
+        },
+        'helper.noVerified': {
+          'zh-TW': '尚未驗證通過的 provider/model',
+          'zh-CN': '尚未验证通过的 provider/model',
+          en: 'No verified providers/models yet',
+          ja: '検証済みのプロバイダ/モデルがありません',
+          ko: '검증된 공급자/모델이 없습니다',
+        },
+        'label.caption': {
+          'zh-TW': '配字',
+          'zh-CN': '配字',
+          en: 'Caption',
+          ja: 'キャプション',
+          ko: '문구',
+        },
+        'label.prompt': {
+          'zh-TW': '描述',
+          'zh-CN': '描述',
+          en: 'Description',
+          ja: '説明',
+          ko: '설명',
+        },
+        'label.grid': {
+          'zh-TW': '格數：',
+          'zh-CN': '格数：',
+          en: 'Grid:',
+          ja: 'グリッド：',
+          ko: '그리드:',
+        },
+        'button.generateDrafts': {
+          'zh-TW': '產生草稿',
+          'zh-CN': '生成草稿',
+          en: 'Generate Drafts',
+          ja: '下書きを生成',
+          ko: '초안 생성',
+        },
+        'button.regenerateDrafts': {
+          'zh-TW': '重生全部草稿',
+          'zh-CN': '全部重生草稿',
+          en: 'Regenerate Drafts',
+          ja: '下書きを再生成',
+          ko: '초안 재생성',
+        },
+        'button.saveDraft': {
+          'zh-TW': '保存此草稿',
+          'zh-CN': '保存草稿',
+          en: 'Save Draft',
+          ja: '下書きを保存',
+          ko: '초안 저장',
+        },
+        'button.generateStickers': {
+          'zh-TW': '開始生成貼圖',
+          'zh-CN': '开始生成贴图',
+          en: 'Generate Stickers',
+          ja: 'スタンプ生成',
+          ko: '스티커 생성',
+        },
+        'button.regenerateOne': {
+          'zh-TW': '重生此張',
+          'zh-CN': '重生此张',
+          en: 'Regenerate',
+          ja: '再生成',
+          ko: '재생성',
+        },
+        'button.removeBg': {
+          'zh-TW': '去背（保留主角完整）',
+          'zh-CN': '去背（保留主体完整）',
+          en: 'Remove BG (keep subject)',
+          ja: '背景除去（主役を保持）',
+          ko: '배경 제거(대상 유지)',
+        },
+        'button.export': {
+          'zh-TW': '產生下載',
+          'zh-CN': '生成下载',
+          en: 'Export',
+          ja: '書き出し',
+          ko: '내보내기',
+        },
+        'hint.removeBg': {
+          'zh-TW': '提示：去背模型需保留主角完整，避免切掉頭髮/手。',
+          'zh-CN': '提示：去背模型需保留主体完整，避免切掉头发/手。',
+          en: 'Tip: keep subject intact when removing background.',
+          ja: 'ヒント：主役を切らないように。',
+          ko: '팁: 대상이 잘리지 않도록.',
+        },
+        'status.bgDone': {
+          'zh-TW': '去背完成',
+          'zh-CN': '去背完成',
+          en: 'Background removed',
+          ja: '背景除去完了',
+          ko: '배경 제거 완료',
+        },
+        'status.exportDone': {
+          'zh-TW': '輸出完成',
+          'zh-CN': '输出完成',
+          en: 'Export complete',
+          ja: '書き出し完了',
+          ko: '내보내기 완료',
+        },
+        'label.download': {
+          'zh-TW': '下載連結',
+          'zh-CN': '下载链接',
+          en: 'Download',
+          ja: 'ダウンロード',
+          ko: '다운로드',
+        },
+        'label.warnTitle': {
+          'zh-TW': '檢核警告',
+          'zh-CN': '检核警告',
+          en: 'Validation Warnings',
+          ja: '検証警告',
+          ko: '검증 경고',
+        },
+        'label.main': {
+          'zh-TW': '主圖',
+          'zh-CN': '主图',
+          en: 'Main',
+          ja: 'メイン',
+          ko: '메인',
+        },
+        'label.tab': {
+          'zh-TW': 'Tab',
+          'zh-CN': 'Tab',
+          en: 'Tab',
+          ja: 'タブ',
+          ko: '탭',
+        },
+        'error.requiredKey': {
+          'zh-TW': '請先填入 API Key',
+          'zh-CN': '请先填写 API Key',
+          en: 'Please enter API Key',
+          ja: 'APIキーを入力してください',
+          ko: 'API 키를 입력하세요',
+        },
+        'error.textConfig': {
+          'zh-TW': '請完成「文字生成」的供應商與模型（或自訂模型 ID）',
+          'zh-CN': '请完成“文本生成”的供应商与模型（或自定义模型 ID）',
+          en: 'Complete text provider/model (or custom model ID).',
+          ja: 'テキストのプロバイダ/モデルを設定してください',
+          ko: '텍스트 공급자/모델을 설정하세요',
+        },
+        'error.imageConfig': {
+          'zh-TW': '請完成「圖像生成」的供應商與模型（或自訂模型 ID）',
+          'zh-CN': '请完成“图像生成”的供应商与模型（或自定义模型 ID）',
+          en: 'Complete image provider/model (or custom model ID).',
+          ja: '画像のプロバイダ/モデルを設定してください',
+          ko: '이미지 공급자/모델을 설정하세요',
+        },
+        'error.bgConfig': {
+          'zh-TW': '請完成「去背」的供應商與模型（或自訂模型 ID）',
+          'zh-CN': '请完成“去背”的供应商与模型（或自定义模型 ID）',
+          en: 'Complete background provider/model (or custom model ID).',
+          ja: '背景除去のプロバイダ/モデルを設定してください',
+          ko: '배경 제거 공급자/모델을 설정하세요',
+        },
+        'error.generic': {
+          'zh-TW': '操作失敗，請稍後再試',
+          'zh-CN': '操作失败，请稍后再试',
+          en: 'Operation failed. Please try again.',
+          ja: '失敗しました。再試行してください',
+          ko: '작업 실패. 다시 시도하세요',
+        },
+        'status.verifyOk': {
+          'zh-TW': 'API Key 驗證成功',
+          'zh-CN': 'API Key 验证成功',
+          en: 'API Key verified',
+          ja: 'APIキー検証成功',
+          ko: 'API 키 검증 성공',
+        },
+        'status.exportOk': {
+          'zh-TW': '輸出成功，已完成規格檢核',
+          'zh-CN': '输出成功，已完成规格检核',
+          en: 'Export success. Validation done.',
+          ja: '書き出し成功（検証完了）',
+          ko: '내보내기 성공(검증 완료)',
+        },
+        'status.exportWarn': {
+          'zh-TW': '輸出完成，但有部分貼圖未通過檢核',
+          'zh-CN': '输出完成，但部分贴图未通过检核',
+          en: 'Export complete, some stickers failed validation.',
+          ja: '一部が検証に失敗しました',
+          ko: '일부 스티커가 검증 실패',
+        },
+        'label.recommendBg': {
+          'zh-TW': '推薦去背模型',
+          'zh-CN': '推荐去背模型',
+          en: 'Recommended BG model',
+          ja: 'おすすめ背景モデル',
+          ko: '추천 배경 모델',
+        },
       }
       const loc = currentLocale.value
       return dict[key]?.[loc] || dict[key]?.en || key
@@ -284,7 +571,7 @@ createApp({
       try {
         await fn()
       } catch (e) {
-        error.value = '操作失敗，請稍後再試'
+        error.value = t('error.generic')
       } finally {
         loading.value = false
       }
@@ -310,7 +597,7 @@ createApp({
       run(async () => {
         if (!project.value) return
         if (!apiKey.value) {
-          error.value = '請先填入 API Key'
+          error.value = t('error.requiredKey')
           return
         }
         const textModelValue = textCustom.value || textModel.value
@@ -318,15 +605,15 @@ createApp({
         const bgModelValue = bgCustom.value || bgModel.value
 
         if (!textProvider.value || !textModelValue) {
-          error.value = '請完成「文字生成」的供應商與模型（或自訂模型 ID）'
+          error.value = t('error.textConfig')
           return
         }
         if (!imageProvider.value || !imageModelValue) {
-          error.value = '請完成「圖像生成」的供應商與模型（或自訂模型 ID）'
+          error.value = t('error.imageConfig')
           return
         }
         if (!bgProvider.value || !bgModelValue) {
-          error.value = '請完成「去背」的供應商與模型（或自訂模型 ID）'
+          error.value = t('error.bgConfig')
           return
         }
 
@@ -365,7 +652,7 @@ createApp({
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
-        success.value = 'API Key 驗證成功'
+        success.value = t('status.verifyOk')
         next('DRAFTS')
       })
 
@@ -431,9 +718,9 @@ createApp({
         downloadUrl.value = res.downloadUrl
         exportWarnings.value = res.warnings || []
         if (exportWarnings.value.length > 0) {
-          error.value = '輸出完成，但有部分貼圖未通過檢核'
+          error.value = t('status.exportWarn')
         } else {
-          success.value = '輸出成功，已完成規格檢核'
+          success.value = t('status.exportOk')
         }
       })
 
@@ -532,7 +819,7 @@ createApp({
 
       <div v-if="jobStatus" style="margin: 12px 0; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-weight:600;">Job 狀態：{{ jobStatus }}</div>
+          <div style="font-weight:600;">Job {{ jobStatus }}</div>
           <div style="font-size:12px; color:#6b7280;">{{ jobProgress }}%</div>
         </div>
         <div style="background:#eef2f7; height:8px; border-radius:4px; overflow:hidden; margin-top:6px;">
@@ -540,7 +827,7 @@ createApp({
         </div>
         <div v-if="jobError" style="color:#b91c1c; margin-top:8px;">
           {{ jobError }}
-          <button @click="retryLastAction" :style="buttonStyle" style="margin-left:8px;">重試</button>
+          <button @click="retryLastAction" :style="buttonStyle" style="margin-left:8px;">{{ t('button.retry') }}</button>
         </div>
       </div>
 
@@ -561,7 +848,7 @@ createApp({
 
       <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.character') }}</h2>
-        <label :style="labelStyle">來源</label>
+        <label :style="labelStyle">{{ t('label.source') }}</label>
         <select v-model="characterReq.sourceType" :style="selectStyle">
           <option value="AI">AI 生成</option>
           <option value="UPLOAD">上傳圖片</option>
@@ -569,36 +856,36 @@ createApp({
         </select>
 
         <div v-if="characterReq.sourceType === 'AI'">
-          <label :style="labelStyle">角色描述</label>
+          <label :style="labelStyle">{{ t('label.character') }}</label>
           <input v-model="characterReq.prompt" :style="inputStyle" />
         </div>
         <div v-else>
-          <label :style="labelStyle">Reference 圖片 URL</label>
+          <label :style="labelStyle">{{ t('label.referenceUrl') }}</label>
           <input v-model="characterReq.referenceImageUrl" :style="inputStyle" />
         </div>
 
-        <button @click="createCharacter" :style="primaryButtonStyle">下一步</button>
+        <button @click="createCharacter" :style="primaryButtonStyle">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'THEME'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.theme') }}</h2>
-        <label :style="labelStyle">主題</label>
+        <label :style="labelStyle">{{ t('label.theme') }}</label>
         <input v-model="theme" :style="inputStyle" />
 
         <div style="margin: 8px 0;">
-          <label :style="labelStyle">預設 AI 供應商（僅顯示已驗證）</label>
+          <label :style="labelStyle">{{ t('label.defaultProvider') }}</label>
           <select v-model="selectedProvider" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
 
-          <label :style="{ ...labelStyle, marginLeft: '8px' }">預設模型</label>
+          <label :style="{ ...labelStyle, marginLeft: '8px' }">{{ t('label.defaultModel') }}</label>
           <select v-model="selectedModel" :disabled="!verified" :style="selectStyle">
             <option v-for="m in (verifiedProviders.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
 
         <div style="margin: 8px 0;">
-          <label :style="labelStyle">預設自訂模型 ID（可選）</label>
+          <label :style="labelStyle">{{ t('label.customModel') }}</label>
           <input v-model="customModel" placeholder="replicate model version / openai model" :style="inputStyle" />
         </div>
 
@@ -625,7 +912,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>去背</strong>（必填）<br/>
+          <strong>{{ t('label.bgRemove') }}</strong>（必填）<br/>
           <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
@@ -633,16 +920,16 @@ createApp({
             <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
           <input v-model="bgCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
-          <div style="color:#666; margin-top:4px;" v-if="bgRecommendMap[bgProvider]">推薦去背模型：{{ bgRecommendMap[bgProvider] }}</div>
+          <div style="color:#666; margin-top:4px;" v-if="bgRecommendMap[bgProvider]">{{ t('label.recommendBg') }}：{{ bgRecommendMap[bgProvider] }}</div>
         </div>
 
         <div style="margin: 8px 0;">
-          <label :style="labelStyle">API Key（只會暫存於記憶體）</label>
+          <label :style="labelStyle">{{ t('label.apiKey') }}</label>
           <input v-model="apiKey" type="password" :style="inputStyle" />
-          <label :style="labelStyle">API Base（可選）</label>
+          <label :style="labelStyle">{{ t('label.apiBase') }}</label>
           <input v-model="apiBase" placeholder="https://api.openai.com" :style="inputStyle" />
-          <small :style="{ color: colors.muted }">完成驗證後，才能選擇下方模型</small>
-          <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">尚未驗證通過的 provider/model</div>
+          <small :style="{ color: colors.muted }">{{ t('helper.verifyFirst') }}</small>
+          <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">{{ t('helper.noVerified') }}</div>
         </div>
 
         <button @click="updateTheme" :style="primaryButtonStyle">{{ t('button.next') }}</button>
@@ -650,28 +937,28 @@ createApp({
 
       <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.drafts') }}</h2>
-        <p>將根據主題與數量生成草稿。</p>
+        <p>{{ t('step.drafts') }}</p>
         <button @click="generateDrafts" :style="primaryButtonStyle">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'GENERATE'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.generate') }}</h2>
-        <button @click="regenerateDrafts" :style="buttonStyle">重生全部草稿</button>
+        <button @click="regenerateDrafts" :style="buttonStyle">{{ t('button.regenerateDrafts') }}</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
           <div>第 {{ d.index }} 張</div>
-          <label :style="labelStyle">配字</label>
+          <label :style="labelStyle">{{ t('label.caption') }}</label>
           <input v-model="d.caption" :style="inputStyle" />
-          <label :style="labelStyle">描述</label>
+          <label :style="labelStyle">{{ t('label.prompt') }}</label>
           <textarea v-model="d.imagePrompt" :style="textareaStyle"></textarea>
-          <button @click="saveDraft(d)" :style="buttonStyle">保存此草稿</button>
+          <button @click="saveDraft(d)" :style="buttonStyle">{{ t('button.saveDraft') }}</button>
         </div>
-        <button @click="generateStickers" :style="primaryButtonStyle">開始生成貼圖</button>
+        <button @click="generateStickers" :style="primaryButtonStyle">{{ t('button.generateStickers') }}</button>
       </section>
 
       <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.preview') }}</h2>
         <div style="margin: 8px 0;">
-          <label :style="labelStyle">格數：</label>
+          <label :style="labelStyle">{{ t('label.grid') }}</label>
           <select v-model="gridCols" :style="selectStyle">
             <option :value="4">4（40 張）</option>
             <option :value="5">5（24 張）</option>
@@ -682,33 +969,33 @@ createApp({
         <div :style="{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, gap: '10px' }">
           <div v-for="s in stickers" :key="s.id" style="border:1px solid #eee; padding:8px; text-align:center;">
             <img :src="s.transparentUrl || s.imageUrl" style="width:100%; height:auto; max-width:140px;" />
-            <div style="font-size:12px; color:#666; margin-top:4px;">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">(已去背)</span></div>
-            <button @click="regenerateSticker(s.id)" :style="buttonStyle" style="margin-top:6px;">重生此張</button>
+            <div style="font-size:12px; color:#666; margin-top:4px;">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">({{ t('status.bgDone') }})</span></div>
+            <button @click="regenerateSticker(s.id)" :style="buttonStyle" style="margin-top:6px;">{{ t('button.regenerateOne') }}</button>
           </div>
         </div>
         <div style="margin:12px 0;">
-          <button @click="removeBackground" :style="buttonStyle">去背（保留主角完整）</button>
-          <button @click="exportZip" :style="primaryButtonStyle" style="margin-left:8px;" :disabled="stickers.length === 0">產生下載</button>
-          <p style="color:#666; margin-top:6px;">提示：去背模型需保留主角完整，避免切掉頭髮/手。</p>
-          <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">去背完成</p>
+          <button @click="removeBackground" :style="buttonStyle">{{ t('button.removeBg') }}</button>
+          <button @click="exportZip" :style="primaryButtonStyle" style="margin-left:8px;" :disabled="stickers.length === 0">{{ t('button.export') }}</button>
+          <p style="color:#666; margin-top:6px;">{{ t('hint.removeBg') }}</p>
+          <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">{{ t('status.bgDone') }}</p>
         </div>
         <div v-if="downloadUrl" style="margin-top:8px; padding:8px; background:#f0fdf4; border:1px solid #bbf7d0;">
-          <div style="color:#166534; font-weight:600;">輸出完成</div>
-          <div>下載連結：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></div>
+          <div style="color:#166534; font-weight:600;">{{ t('status.exportDone') }}</div>
+          <div>{{ t('label.download') }}：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></div>
         </div>
         <div v-if="exportWarnings.length" style="margin-top:8px; padding:8px; background:#fff7ed; border:1px solid #fed7aa;">
-          <div style="color:#9a3412; font-weight:600;">檢核警告</div>
+          <div style="color:#9a3412; font-weight:600;">{{ t('label.warnTitle') }}</div>
           <ul style="margin:6px 0 0 16px;">
             <li v-for="w in exportWarnings" :key="w" style="color:#9a3412;">{{ w }}</li>
           </ul>
         </div>
         <div v-if="stickers.length" style="margin-top:12px; display:flex; gap:12px; align-items:center;">
           <div>
-            <div style="font-size:12px; color:#666;">主圖 240×240</div>
+            <div style="font-size:12px; color:#666;">{{ t('label.main') }} 240×240</div>
             <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" style="width:120px; height:120px; border:1px solid #eee;" />
           </div>
           <div>
-            <div style="font-size:12px; color:#666;">Tab 96×74</div>
+            <div style="font-size:12px; color:#666;">{{ t('label.tab') }} 96×74</div>
             <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" style="width:96px; height:74px; border:1px solid #eee;" />
           </div>
         </div>
