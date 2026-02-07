@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -30,6 +32,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			if !decodeJSON(w, r, &req) {
 				return
 			}
+			log.Printf("create project title=%s", req.Title)
 			p := store.CreateProject(req.Title, req.StickerCount)
 			writeJSON(w, http.StatusOK, p)
 		default:
@@ -71,6 +74,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 			if !decodeJSON(w, r, &req) {
 				return
 			}
+			log.Printf("create character project=%s", segments[1])
 			if c, ok := store.CreateCharacter(segments[1], req); ok {
 				writeJSON(w, http.StatusOK, c)
 				return
@@ -339,7 +343,13 @@ func writeStatus(w http.ResponseWriter, code int) {
 }
 
 func decodeJSON(w http.ResponseWriter, r *http.Request, v interface{}) bool {
-	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
+	defer r.Body.Close()
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		writeStatus(w, http.StatusBadRequest)
+		return false
+	}
+	if err := json.Unmarshal(body, v); err != nil {
 		writeStatus(w, http.StatusBadRequest)
 		return false
 	}
