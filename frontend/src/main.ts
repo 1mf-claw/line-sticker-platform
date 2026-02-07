@@ -37,20 +37,40 @@ createApp({
     const exportWarnings = ref<string[]>([])
     const gridCols = ref(4)
 
+    const colors = {
+      bg: '#f8fafc',
+      card: '#ffffff',
+      border: '#e5e7eb',
+      text: '#0f172a',
+      muted: '#64748b',
+      primary: '#2563eb',
+      success: '#16a34a',
+      warn: '#f59e0b',
+      error: '#dc2626',
+    }
     const sectionStyle = {
-      border: '1px solid #e5e7eb',
+      border: `1px solid ${colors.border}`,
       borderRadius: '10px',
       padding: '14px',
       marginTop: '12px',
-      background: '#fff',
+      background: colors.card,
     }
     const buttonStyle = {
       padding: '6px 12px',
       borderRadius: '6px',
-      border: '1px solid #d1d5db',
+      border: `1px solid ${colors.border}`,
       background: '#f9fafb',
       cursor: 'pointer',
+      color: colors.text,
     }
+    const primaryButtonStyle = {
+      ...buttonStyle,
+      background: colors.primary,
+      color: '#fff',
+      border: `1px solid ${colors.primary}`,
+    }
+    const h2Style = { fontSize: '18px', margin: '0 0 8px', color: colors.text }
+    const labelStyle = { fontSize: '13px', color: colors.muted }
 
     const title = ref('LINE Sticker Project')
     const theme = ref('')
@@ -331,8 +351,12 @@ createApp({
       jobError,
       retryLastAction,
       exportWarnings,
+      colors,
       sectionStyle,
       buttonStyle,
+      primaryButtonStyle,
+      h2Style,
+      labelStyle,
       title,
       theme,
       stickerCount,
@@ -366,8 +390,8 @@ createApp({
     }
   },
   template: `
-    <div style="max-width: 860px; margin: 32px auto; font-family: system-ui; background:#f8fafc; padding:16px; border-radius:12px;">
-      <h1 style="margin: 4px 0 12px;">LINE 貼圖製作平台</h1>
+    <div :style="{ maxWidth: '860px', margin: '32px auto', fontFamily: 'system-ui', background: colors.bg, padding: '16px', borderRadius: '12px', color: colors.text }">
+      <h1 style="margin: 4px 0 12px; font-size:22px;">LINE 貼圖製作平台</h1>
       <Notice :message="error" type="error" />
       <Notice :message="success" type="success" />
       <Notice v-if="loading" message="處理中..." type="info" />
@@ -382,28 +406,28 @@ createApp({
         </div>
         <div v-if="jobError" style="color:#b91c1c; margin-top:8px;">
           {{ jobError }}
-          <button @click="retryLastAction" style="margin-left:8px;">重試</button>
+          <button @click="retryLastAction" :style="buttonStyle" style="margin-left:8px;">重試</button>
         </div>
       </div>
 
       <section v-if="step === 'CREATE_PROJECT'" :style="sectionStyle">
-        <h2>1. 建立專案</h2>
-        <label>專案名稱</label>
+        <h2 :style="h2Style">1. 建立專案</h2>
+        <label :style="labelStyle">專案名稱</label>
         <input v-model="title" style="width: 100%; margin: 8px 0;" />
 
-        <label>貼圖數量</label>
+        <label :style="labelStyle">貼圖數量</label>
         <select v-model.number="stickerCount">
           <option :value="8">8</option>
           <option :value="16">16</option>
           <option :value="24">24</option>
           <option :value="40">40</option>
         </select>
-        <button @click="createProject" style="margin-left: 12px;">下一步</button>
+        <button @click="createProject" :style="primaryButtonStyle" style="margin-left: 12px;">下一步</button>
       </section>
 
       <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
-        <h2>2. 角色設定</h2>
-        <label>來源</label>
+        <h2 :style="h2Style">2. 角色設定</h2>
+        <label :style="labelStyle">來源</label>
         <select v-model="characterReq.sourceType">
           <option value="AI">AI 生成</option>
           <option value="UPLOAD">上傳圖片</option>
@@ -411,7 +435,7 @@ createApp({
         </select>
 
         <div v-if="characterReq.sourceType === 'AI'">
-          <label>角色描述</label>
+          <label :style="labelStyle">角色描述</label>
           <input v-model="characterReq.prompt" style="width: 100%; margin: 8px 0;" />
         </div>
         <div v-else>
@@ -419,21 +443,21 @@ createApp({
           <input v-model="characterReq.referenceImageUrl" style="width: 100%; margin: 8px 0;" />
         </div>
 
-        <button @click="createCharacter">下一步</button>
+        <button @click="createCharacter" :style="primaryButtonStyle">下一步</button>
       </section>
 
       <section v-else-if="step === 'THEME'" :style="sectionStyle">
-        <h2>3. 主題與焦點</h2>
-        <label>主題</label>
+        <h2 :style="h2Style">3. 主題與焦點</h2>
+        <label :style="labelStyle">主題</label>
         <input v-model="theme" style="width: 100%; margin: 8px 0;" />
 
         <div style="margin: 8px 0;">
-          <label>預設 AI 供應商（僅顯示已驗證）</label>
+          <label :style="labelStyle">預設 AI 供應商（僅顯示已驗證）</label>
           <select v-model="selectedProvider" :disabled="!verified">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
 
-          <label style="margin-left:8px;">預設模型</label>
+          <label :style="{ ...labelStyle, marginLeft: '8px' }">預設模型</label>
           <select v-model="selectedModel" :disabled="!verified">
             <option v-for="m in (verifiedProviders.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
@@ -487,27 +511,27 @@ createApp({
           <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">尚未驗證通過的 provider/model</div>
         </div>
 
-        <button @click="updateTheme">下一步</button>
+        <button @click="updateTheme" :style="primaryButtonStyle">下一步</button>
       </section>
 
       <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
         <h2>4. 草稿生成</h2>
         <p>將根據主題與數量生成草稿。</p>
-        <button @click="generateDrafts">產生草稿</button>
+        <button @click="generateDrafts" :style="primaryButtonStyle">產生草稿</button>
       </section>
 
       <section v-else-if="step === 'GENERATE'" :style="sectionStyle">
         <h2>5. 草稿確認 / 編輯</h2>
-        <button @click="regenerateDrafts">重生全部草稿</button>
+        <button @click="regenerateDrafts" :style="buttonStyle">重生全部草稿</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
           <div>第 {{ d.index }} 張</div>
           <label>配字</label>
           <input v-model="d.caption" style="width:100%; margin:6px 0;" />
           <label>描述</label>
           <textarea v-model="d.imagePrompt" style="width:100%; margin:6px 0;"></textarea>
-          <button @click="saveDraft(d)">保存此草稿</button>
+          <button @click="saveDraft(d)" :style="buttonStyle">保存此草稿</button>
         </div>
-        <button @click="generateStickers">開始生成貼圖</button>
+        <button @click="generateStickers" :style="primaryButtonStyle">開始生成貼圖</button>
       </section>
 
       <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
@@ -525,12 +549,12 @@ createApp({
           <div v-for="s in stickers" :key="s.id" style="border:1px solid #eee; padding:8px; text-align:center;">
             <img :src="s.transparentUrl || s.imageUrl" style="width:100%; height:auto; max-width:140px;" />
             <div style="font-size:12px; color:#666; margin-top:4px;">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">(已去背)</span></div>
-            <button @click="regenerateSticker(s.id)" style="margin-top:6px;">重生此張</button>
+            <button @click="regenerateSticker(s.id)" :style="buttonStyle" style="margin-top:6px;">重生此張</button>
           </div>
         </div>
         <div style="margin:12px 0;">
-          <button @click="removeBackground">去背（保留主角完整）</button>
-          <button @click="exportZip" style="margin-left:8px;" :disabled="stickers.length === 0">產生下載</button>
+          <button @click="removeBackground" :style="buttonStyle">去背（保留主角完整）</button>
+          <button @click="exportZip" :style="primaryButtonStyle" style="margin-left:8px;" :disabled="stickers.length === 0">產生下載</button>
           <p style="color:#666; margin-top:6px;">提示：去背模型需保留主角完整，避免切掉頭髮/手。</p>
           <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">去背完成</p>
         </div>
