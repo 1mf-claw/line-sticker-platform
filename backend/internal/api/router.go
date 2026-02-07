@@ -329,6 +329,9 @@ func writeJSON(w http.ResponseWriter, code int, v interface{}) {
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(buf)))
 	w.WriteHeader(code)
 	_, _ = w.Write(buf)
+	if f, ok := w.(http.Flusher); ok {
+		f.Flush()
+	}
 }
 
 func writeStatus(w http.ResponseWriter, code int) {
