@@ -79,6 +79,11 @@ createApp({
       customModel.value = ''
     })
 
+    watch(apiKey, () => {
+      verified.value = false
+      verifiedProviders.value = []
+    })
+
     const syncDefaultModel = (providerRef: any, modelRef: any, customRef: any) => {
       const p = providers.value.find((x) => x.id === providerRef.value)
       if (p && p.models.length > 0) {
@@ -408,6 +413,7 @@ createApp({
           <label>API Base（可選）</label>
           <input v-model="apiBase" placeholder="https://api.openai.com" style="width:100%; margin:6px 0;" />
           <small>完成驗證後，才能選擇下方模型</small>
+          <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">尚未驗證通過的 provider/model</div>
         </div>
 
         <button @click="updateTheme">下一步</button>
