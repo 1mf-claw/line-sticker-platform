@@ -37,6 +37,28 @@ npm run dev
 2. 填入 BYOK Key
 3. 依流程建立草稿 → 生成貼圖 → 去背 → 匯出
 
+### 部署說明（簡版）
+**後端**
+```bash
+cd backend
+GOOS=linux GOARCH=amd64 go build -o app ./cmd/app
+./app
+```
+
+**前端**
+```bash
+cd frontend
+npm install
+npm run build
+# 將 dist/ 部署到任意靜態主機 (Vercel / Netlify / Cloudflare Pages)
+```
+
+### 截圖
+> TODO: 請補上 UI 截圖
+
+### 版本紀錄
+- `v0.1.x`：MVP（草稿 / 生成 / 去背 / 匯出）
+
 ---
 
 ## English
@@ -69,3 +91,25 @@ npm run dev
 1. Open `http://localhost:5173`
 2. Enter your BYOK key
 3. Follow the flow → generate → remove background → export
+
+### Deployment (short)
+**Backend**
+```bash
+cd backend
+GOOS=linux GOARCH=amd64 go build -o app ./cmd/app
+./app
+```
+
+**Frontend**
+```bash
+cd frontend
+npm install
+npm run build
+# Deploy dist/ to any static host (Vercel / Netlify / Cloudflare Pages)
+```
+
+### Screenshots
+> TODO: add UI screenshots
+
+### Changelog
+- `v0.1.x`: MVP (drafts / generate / remove BG / export)
