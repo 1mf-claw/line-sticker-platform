@@ -74,6 +74,11 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 			}
 		}
 	}
+	// add simple spec/readme
+	if w, err := zw.Create("README.txt"); err == nil {
+		_, _ = w.Write([]byte("LINE Stickers Export\n- Sticker: 370x320 PNG (transparent)\n- main.png: 240x240 PNG\n- tab.png: 96x74 PNG\n"))
+	}
+
 	if err := zw.Close(); err != nil {
 		return "", err
 	}
