@@ -62,26 +62,3 @@ func (p BYOKPipeline) RemoveBackground(imageURL string) (string, error) {
 	}
 	return adapter.RemoveBackground(p.APIKey, p.APIBase, p.Model, imageURL)
 }
-
-func adapterFor(provider string) ProviderAdapter {
-	switch provider {
-	case "openai":
-		return OpenAIAdapter{}
-	case "replicate":
-		return ReplicateAdapter{}
-	default:
-		return nil
-	}
-}
-
-func (p BYOKPipeline) GenerateDrafts(theme string, count int, character CharacterInput) ([]DraftIdea, error) {
-	return p.Fallback.GenerateDrafts(theme, count, character)
-}
-
-func (p BYOKPipeline) GenerateImage(prompt string, character CharacterInput) (string, error) {
-	return p.Fallback.GenerateImage(prompt, character)
-}
-
-func (p BYOKPipeline) RemoveBackground(imageURL string) (string, error) {
-	return p.Fallback.RemoveBackground(imageURL)
-}

@@ -1094,7 +1094,7 @@ createApp({
             <option :value="8">{{ t('grid.8') }}</option>
           </select>
         </div>
-        <div :style="{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, gap: '10px' }">
+        <div :style="{ display: 'grid', gridTemplateColumns: 'repeat(' + gridCols + ', 1fr)', gap: '10px' }">
           <div v-for="s in stickers" :key="s.id" style="border:1px solid #eee; padding:8px; text-align:center;">
             <img :src="s.transparentUrl || s.imageUrl" style="width:100%; height:auto; max-width:140px;" />
             <div style="font-size:12px; color:#666; margin-top:4px;">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">({{ t('status.bgDone') }})</span></div>
