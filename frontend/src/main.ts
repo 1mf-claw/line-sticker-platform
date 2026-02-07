@@ -502,7 +502,7 @@ createApp({
         </div>
         <div style="margin:12px 0;">
           <button @click="removeBackground">去背（保留主角完整）</button>
-          <button @click="exportZip" style="margin-left:8px;">產生下載</button>
+          <button @click="exportZip" style="margin-left:8px;" :disabled="stickers.length === 0">產生下載</button>
           <p style="color:#666; margin-top:6px;">提示：去背模型需保留主角完整，避免切掉頭髮/手。</p>
           <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">去背完成</p>
         </div>

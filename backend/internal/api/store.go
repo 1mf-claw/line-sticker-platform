@@ -315,10 +315,14 @@ func (s *Store) Export(projectID string) (*ExportResponse, bool) {
 		_ = rows.Scan(&st.ID, &st.ProjectID, &st.DraftID, &st.ImageURL, &st.TransparentURL, &st.CreatedAt)
 		list = append(list, st)
 	}
+	if len(list) == 0 {
+		return nil, false
+	}
 	zipPath, err := buildExportZip(projectID, list)
 	if err != nil {
 		return nil, false
 	}
+	_ = zipPath
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "DONE", projectID)
 	return &ExportResponse{DownloadURL: "/api/v1/exports/" + projectID + ".zip"}, true
 }
