@@ -507,6 +507,16 @@ createApp({
           <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">去背完成</p>
         </div>
         <p v-if="downloadUrl">下載連結：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></p>
+        <div v-if="stickers.length" style="margin-top:12px; display:flex; gap:12px; align-items:center;">
+          <div>
+            <div style="font-size:12px; color:#666;">主圖 240×240</div>
+            <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" style="width:120px; height:120px; border:1px solid #eee;" />
+          </div>
+          <div>
+            <div style="font-size:12px; color:#666;">Tab 96×74</div>
+            <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" style="width:96px; height:74px; border:1px solid #eee;" />
+          </div>
+        </div>
       </section>
     </div>
   `,
