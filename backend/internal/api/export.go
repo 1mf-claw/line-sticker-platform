@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 )
 
@@ -36,7 +37,12 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 	defer f.Close()
 
 	zw := zip.NewWriter(f)
-	for i, s := range stickers {
+	sorted := append([]Sticker(nil), stickers...)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].CreatedAt < sorted[j].CreatedAt
+	})
+
+	for i, s := range sorted {
 		url := s.TransparentURL
 		if url == "" {
 			url = s.ImageURL
