@@ -1,51 +1,71 @@
-# Claw Engineering Template
+# LINE 貼圖製作平台 / LINE Sticker Platform
 
-![CI](https://github.com/1mf-claw/claw-engineering-template/actions/workflows/ci-release.yml/badge.svg)
-![Release](https://img.shields.io/github/v/release/1mf-claw/claw-engineering-template)
+![CI](https://github.com/1mf-claw/line-sticker-platform/actions/workflows/ci-release.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/1mf-claw/line-sticker-platform)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Production-ready full‑stack template (Go + Vue) with CI/CD, SRE baseline, and governance baked in.
+---
 
-## What You Get
-- Go backend (clean HTTP service)
-- Vue 3 + Vite frontend
-- GitHub Actions CI (lint / test / cross‑platform build)
-- semantic‑release (automated versioning)
-- Multi‑environment config (dev / staging / prod)
-- SRE baseline (metrics, alerting, systemd ready)
-- Governance (PR template, CODEOWNERS, SECURITY policy)
+## 中文
 
-## Use This Template
-1. Click **Use this template**
-2. Create a new repository
-3. Clone the new repo
-4. Update:
-   - `backend/go.mod` (module path)
-   - Environment files (`.env.*`)
-5. Push to `main`
+本專案是「LINE 貼圖製作平台」的正式專案，提供從 **主題 → 草稿 → 圖像 → 去背 → 匯出** 的完整流程，並支援 **BYOK（自帶 API Key）** 與 **每個功能可選不同 provider/model**。
 
-CI will run automatically.
+### 主要功能
+- Go + Vue 全端架構
+- BYOK（API Key 只存記憶體，不落地）
+- 文字 / 圖像 / 去背可分別選擇不同 provider/model
+- 真實去背流程（支援 Replicate）
+- 產出 ZIP（含 main.png / tab.png / metadata / report）
+- i18n 多語系（繁體 / 簡體 / 英文 / 日文 / 韓文）
 
-## Local Development
-### Backend
+### 本機開發
+**後端**
 ```bash
 cd backend
 go run ./cmd/app
 ```
 
-### Frontend
+**前端**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-## CI / Release
-- CI runs on every push / PR
-- Releases are generated from commit messages (Conventional Commits)
-
-## Standards
-See `docs/ENGINEERING_STANDARD.md` for the full production and governance baseline.
+### 測試方式
+1. 開啟 `http://localhost:5173`
+2. 填入 BYOK Key
+3. 依流程建立草稿 → 生成貼圖 → 去背 → 匯出
 
 ---
-This repository is intended to be the **single source of truth** for new services.
+
+## English
+
+This project is the official **LINE Sticker Platform**, providing an end‑to‑end flow from **theme → drafts → images → background removal → export**. It supports **BYOK (Bring Your Own Key)** and allows **per‑task provider/model selection**.
+
+### Features
+- Full‑stack Go + Vue
+- BYOK (API keys are kept in memory only)
+- Per‑task provider/model selection for text/image/bg
+- Real background removal (Replicate supported)
+- ZIP export (includes main.png / tab.png / metadata / report)
+- i18n (zh‑TW / zh‑CN / EN / JA / KO)
+
+### Local Development
+**Backend**
+```bash
+cd backend
+go run ./cmd/app
+```
+
+**Frontend**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Quick Test
+1. Open `http://localhost:5173`
+2. Enter your BYOK key
+3. Follow the flow → generate → remove background → export
