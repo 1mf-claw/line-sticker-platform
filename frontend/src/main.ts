@@ -1,4 +1,5 @@
 import { createApp, onMounted, ref, watch } from 'vue'
+import Notice from './components/Notice.vue'
 import { api } from './api/client'
 import type {
   CharacterCreateRequest,
@@ -305,9 +306,9 @@ createApp({
   template: `
     <div style="max-width: 720px; margin: 32px auto; font-family: system-ui;">
       <h1>LINE 貼圖製作平台</h1>
-      <p v-if="error" style="color: red;">{{ error }}</p>
-      <p v-if="success" style="color: green;">{{ success }}</p>
-      <p v-if="loading">處理中...</p>
+      <Notice :message="error" type="error" />
+      <Notice :message="success" type="success" />
+      <Notice v-if="loading" message="處理中..." type="info" />
 
       <div v-if="jobStatus" style="margin: 12px 0;">
         <div>Job 狀態：{{ jobStatus }}</div>
