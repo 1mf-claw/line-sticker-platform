@@ -1,6 +1,7 @@
 import { createApp, onMounted, ref, watch } from 'vue'
 import Notice from './components/Notice.vue'
 import { api } from './api/client'
+import './style.css'
 import type {
   CharacterCreateRequest,
   Draft,
@@ -38,58 +39,14 @@ createApp({
     const exportWarnings = ref<string[]>([])
     const gridCols = ref(4)
 
-    const colors = {
-      bg: '#f8fafc',
-      card: '#ffffff',
-      border: '#e5e7eb',
-      text: '#0f172a',
-      muted: '#64748b',
-      primary: '#2563eb',
-      success: '#16a34a',
-      warn: '#f59e0b',
-      error: '#dc2626',
-    }
-    const sectionStyle = {
-      border: `1px solid ${colors.border}`,
-      borderRadius: '10px',
-      padding: '14px',
-      marginTop: '12px',
-      background: colors.card,
-    }
-    const buttonStyle = {
-      padding: '6px 12px',
-      borderRadius: '6px',
-      border: `1px solid ${colors.border}`,
-      background: '#f9fafb',
-      cursor: 'pointer',
-      color: colors.text,
-    }
-    const primaryButtonStyle = {
-      ...buttonStyle,
-      background: colors.primary,
-      color: '#fff',
-      border: `1px solid ${colors.primary}`,
-    }
-    const inputStyle = {
-      width: '100%',
-      margin: '6px 0',
-      padding: '6px 8px',
-      border: `1px solid ${colors.border}`,
-      borderRadius: '6px',
-      background: '#fff',
-      color: colors.text,
-    }
-    const selectStyle = {
-      ...inputStyle,
-      width: 'auto',
-      margin: '6px 6px 6px 0',
-    }
-    const textareaStyle = {
-      ...inputStyle,
-      minHeight: '72px',
-    }
-    const h2Style = { fontSize: '18px', margin: '0 0 8px', color: colors.text }
-    const labelStyle = { fontSize: '13px', color: colors.muted }
+    const sectionClass = 'mt-3 rounded-xl border border-slate-200 bg-white p-4'
+    const buttonClass = 'rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-slate-800'
+    const primaryButtonClass = 'rounded-md border border-blue-600 bg-blue-600 px-3 py-2 text-white'
+    const inputClass = 'w-full rounded-md border border-slate-300 bg-white px-2 py-1.5'
+    const selectClass = 'rounded-md border border-slate-300 bg-white px-2 py-1.5'
+    const textareaClass = 'w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 min-h-[72px]'
+    const h2Class = 'text-lg font-semibold text-slate-900'
+    const labelClass = 'text-xs text-slate-500'
 
     const locales = {
       'zh-TW': { name: '繁體中文' },
@@ -193,6 +150,13 @@ createApp({
           en: 'Retry',
           ja: '再試行',
           ko: '다시 시도',
+        },
+        'button.back': {
+          'zh-TW': '返回上一步',
+          'zh-CN': '返回上一步',
+          en: 'Back',
+          ja: '戻る',
+          ko: '뒤로',
         },
         'label.source': {
           'zh-TW': '來源',
@@ -886,15 +850,14 @@ createApp({
       jobError,
       retryLastAction,
       exportWarnings,
-      colors,
-      sectionStyle,
-      buttonStyle,
-      primaryButtonStyle,
-      inputStyle,
-      selectStyle,
-      textareaStyle,
-      h2Style,
-      labelStyle,
+      sectionClass,
+      buttonClass,
+      primaryButtonClass,
+      inputClass,
+      selectClass,
+      textareaClass,
+      h2Class,
+      labelClass,
       locales,
       localeOptions,
       currentLocale,
@@ -934,12 +897,12 @@ createApp({
     }
   },
   template: `
-    <div :style="{ maxWidth: '860px', margin: '32px auto', fontFamily: 'system-ui', background: colors.bg, padding: '16px', borderRadius: '12px', color: colors.text }">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-        <h1 style="margin: 4px 0 12px; font-size:22px;">{{ t('app.title') }}</h1>
-        <div>
-          <label :style="labelStyle">{{ t('label.language') }}</label>
-          <select v-model="currentLocale" :style="selectStyle">
+    <div class="mx-auto my-8 max-w-5xl rounded-xl bg-slate-50 p-4 text-slate-900">
+      <div class="flex items-center justify-between gap-3">
+        <h1 class="text-xl font-semibold">{{ t('app.title') }}</h1>
+        <div class="flex items-center gap-2">
+          <label :class="labelClass">{{ t('label.language') }}</label>
+          <select v-model="currentLocale" :class="selectClass">
             <option v-for="code in localeOptions" :key="code" :value="code">{{ locales[code].name }}</option>
           </select>
         </div>
@@ -948,191 +911,191 @@ createApp({
       <Notice :message="success" type="success" />
       <Notice v-if="loading" :message="t('status.loading')" type="info" />
 
-      <div v-if="jobStatus" style="margin: 12px 0; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-weight:600;">Job {{ jobStatus }}</div>
-          <div style="font-size:12px; color:#6b7280;">{{ jobProgress }}%</div>
+      <div v-if="jobStatus" class="my-3 rounded-lg border border-slate-200 bg-white p-3">
+        <div class="flex items-center justify-between">
+          <div class="font-semibold">Job {{ jobStatus }}</div>
+          <div class="text-xs text-slate-500">{{ jobProgress }}%</div>
         </div>
-        <div style="background:#eef2f7; height:8px; border-radius:4px; overflow:hidden; margin-top:6px;">
-          <div :style="{ width: jobProgress + '%', background:'#4ade80', height:'8px' }"></div>
+        <div class="mt-2 h-2 overflow-hidden rounded bg-slate-100">
+          <div :style="{ width: jobProgress + '%' }" class="h-2 bg-green-400"></div>
         </div>
-        <div v-if="jobError" style="color:#b91c1c; margin-top:8px;">
+        <div v-if="jobError" class="mt-2 text-red-700">
           {{ jobError }}
-          <button @click="retryLastAction" :style="buttonStyle" style="margin-left:8px;">{{ t('button.retry') }}</button>
+          <button @click="retryLastAction" :class="buttonClass" class="ml-2">{{ t('button.retry') }}</button>
         </div>
       </div>
 
-      <section v-if="step === 'CREATE_PROJECT'" :style="sectionStyle">
-        <h2 :style="h2Style">{{ t('step.create') }}</h2>
-        <label :style="labelStyle">{{ t('label.projectName') }}</label>
-        <input v-model="title" :style="inputStyle" />
+      <section v-if="step === 'CREATE_PROJECT'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.create') }}</h2>
+        <label :class="labelClass">{{ t('label.projectName') }}</label>
+        <input v-model="title" :class="inputClass" />
 
-        <label :style="labelStyle">{{ t('label.stickerCount') }}</label>
-        <select v-model.number="stickerCount" :style="selectStyle">
+        <label :class="labelClass">{{ t('label.stickerCount') }}</label>
+        <select v-model.number="stickerCount" :class="selectClass">
           <option :value="8">8</option>
           <option :value="16">16</option>
           <option :value="24">24</option>
           <option :value="40">40</option>
         </select>
-        <button @click="createProject" :style="primaryButtonStyle" style="margin-left: 12px;">{{ t('button.next') }}</button>
+        <button @click="createProject" :class="primaryButtonClass" class="ml-3">{{ t('button.next') }}</button>
       </section>
 
-      <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
-        <h2 :style="h2Style">{{ t('step.character') }}</h2>
-        <button @click="prev('CREATE_PROJECT')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
-        <label :style="labelStyle">{{ t('label.source') }}</label>
-        <select v-model="characterReq.sourceType" :style="selectStyle">
+      <section v-else-if="step === 'CHARACTER'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.character') }}</h2>
+        <button @click="prev('CREATE_PROJECT')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
+        <label :class="labelClass">{{ t('label.source') }}</label>
+        <select v-model="characterReq.sourceType" :class="selectClass">
           <option value="AI">{{ t('option.source.ai') }}</option>
           <option value="UPLOAD">{{ t('option.source.upload') }}</option>
           <option value="HISTORY">{{ t('option.source.history') }}</option>
         </select>
 
         <div v-if="characterReq.sourceType === 'AI'">
-          <label :style="labelStyle">{{ t('label.character') }}</label>
-          <input v-model="characterReq.prompt" :style="inputStyle" />
+          <label :class="labelClass">{{ t('label.character') }}</label>
+          <input v-model="characterReq.prompt" :class="inputClass" />
         </div>
         <div v-else>
-          <label :style="labelStyle">{{ t('label.referenceUrl') }}</label>
-          <input v-model="characterReq.referenceImageUrl" :style="inputStyle" />
+          <label :class="labelClass">{{ t('label.referenceUrl') }}</label>
+          <input v-model="characterReq.referenceImageUrl" :class="inputClass" />
         </div>
 
-        <button @click="createCharacter" :style="primaryButtonStyle">{{ t('button.next') }}</button>
+        <button @click="createCharacter" :class="primaryButtonClass">{{ t('button.next') }}</button>
       </section>
 
-      <section v-else-if="step === 'THEME'" :style="sectionStyle">
-        <h2 :style="h2Style">{{ t('step.theme') }}</h2>
-        <button @click="prev('CHARACTER')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
-        <label :style="labelStyle">{{ t('label.theme') }}</label>
-        <input v-model="theme" :style="inputStyle" />
+      <section v-else-if="step === 'THEME'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.theme') }}</h2>
+        <button @click="prev('CHARACTER')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
+        <label :class="labelClass">{{ t('label.theme') }}</label>
+        <input v-model="theme" :class="inputClass" />
 
-        <div style="margin: 8px 0;">
-          <label :style="labelStyle">{{ t('label.defaultProvider') }}</label>
-          <select v-model="selectedProvider" :disabled="!verified" :style="selectStyle">
+        <div class="my-2">
+          <label :class="labelClass">{{ t('label.defaultProvider') }}</label>
+          <select v-model="selectedProvider" :disabled="!verified" :class="selectClass">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
 
-          <label :style="{ ...labelStyle, marginLeft: '8px' }">{{ t('label.defaultModel') }}</label>
-          <select v-model="selectedModel" :disabled="!verified" :style="selectStyle">
+          <label :class="labelClass" class="ml-2">{{ t('label.defaultModel') }}</label>
+          <select v-model="selectedModel" :disabled="!verified" :class="selectClass">
             <option v-for="m in (verifiedProviders.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
 
-        <div style="margin: 8px 0;">
-          <label :style="labelStyle">{{ t('label.customModel') }}</label>
-          <input v-model="customModel" placeholder="replicate model version / openai model" :style="inputStyle" />
+        <div class="my-2">
+          <label :class="labelClass">{{ t('label.customModel') }}</label>
+          <input v-model="customModel" :placeholder="t('placeholder.customModelHint')" :class="inputClass" />
         </div>
 
-        <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
+        <div class="my-2 rounded-md border border-dashed border-slate-200 p-2">
           <strong>{{ t('label.textGen') }}</strong>（{{ t('label.required') }}）<br/>
-          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })" :disabled="!verified" :style="selectStyle">
+          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })" :disabled="!verified" :class="selectClass">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="textModel" :disabled="!verified" :style="selectStyle">
+          <select v-model="textModel" :disabled="!verified" :class="selectClass">
             <option v-for="m in (verifiedProviders.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="textCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
+          <input v-model="textCustom" :placeholder="t('placeholder.customModelId')" :class="inputClass" :disabled="!verified" />
         </div>
 
-        <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
+        <div class="my-2 rounded-md border border-dashed border-slate-200 p-2">
           <strong>{{ t('label.imageGen') }}</strong>（{{ t('label.required') }}）<br/>
-          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })" :disabled="!verified" :style="selectStyle">
+          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })" :disabled="!verified" :class="selectClass">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="imageModel" :disabled="!verified" :style="selectStyle">
+          <select v-model="imageModel" :disabled="!verified" :class="selectClass">
             <option v-for="m in (verifiedProviders.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="imageCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
+          <input v-model="imageCustom" :placeholder="t('placeholder.customModelId')" :class="inputClass" :disabled="!verified" />
         </div>
 
-        <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
+        <div class="my-2 rounded-md border border-dashed border-slate-200 p-2">
           <strong>{{ t('label.bgRemove') }}</strong>（{{ t('label.required') }}）<br/>
-          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified" :style="selectStyle">
+          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified" :class="selectClass">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="bgModel" :disabled="!verified" :style="selectStyle">
+          <select v-model="bgModel" :disabled="!verified" :class="selectClass">
             <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="bgCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
-          <div style="color:#666; margin-top:4px;" v-if="bgRecommendMap[bgProvider]">{{ t('label.recommendBg') }}：{{ bgRecommendMap[bgProvider] }}</div>
+          <input v-model="bgCustom" :placeholder="t('placeholder.customModelId')" :class="inputClass" :disabled="!verified" />
+          <div class="mt-1 text-sm text-slate-500" v-if="bgRecommendMap[bgProvider]">{{ t('label.recommendBg') }}：{{ bgRecommendMap[bgProvider] }}</div>
         </div>
 
-        <div style="margin: 8px 0;">
-          <label :style="labelStyle">{{ t('label.apiKey') }}</label>
-          <input v-model="apiKey" type="password" :style="inputStyle" />
-          <label :style="labelStyle">{{ t('label.apiBase') }}</label>
-          <input v-model="apiBase" placeholder="https://api.openai.com" :style="inputStyle" />
-          <small :style="{ color: colors.muted }">{{ t('helper.verifyFirst') }}</small>
-          <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">{{ t('helper.noVerified') }}</div>
+        <div class="my-2">
+          <label :class="labelClass">{{ t('label.apiKey') }}</label>
+          <input v-model="apiKey" type="password" :class="inputClass" />
+          <label :class="labelClass">{{ t('label.apiBase') }}</label>
+          <input v-model="apiBase" placeholder="https://api.openai.com" :class="inputClass" />
+          <small class="text-slate-500">{{ t('helper.verifyFirst') }}</small>
+          <div v-if="verifiedProviders.length === 0" class="mt-1 text-sm text-slate-400">{{ t('helper.noVerified') }}</div>
         </div>
 
-        <button @click="updateTheme" :style="primaryButtonStyle">{{ t('button.next') }}</button>
+        <button @click="updateTheme" :class="primaryButtonClass">{{ t('button.next') }}</button>
       </section>
 
-      <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
-        <h2 :style="h2Style">{{ t('step.drafts') }}</h2>
-        <button @click="prev('THEME')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
-        <p>{{ t('desc.drafts') }}</p>
-        <button @click="generateDrafts" :style="primaryButtonStyle">{{ t('button.next') }}</button>
+      <section v-else-if="step === 'DRAFTS'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.drafts') }}</h2>
+        <button @click="prev('THEME')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
+        <p class="text-sm text-slate-600">{{ t('desc.drafts') }}</p>
+        <button @click="generateDrafts" :class="primaryButtonClass">{{ t('button.next') }}</button>
       </section>
 
-      <section v-else-if="step === 'GENERATE'" :style="sectionStyle">
-        <h2 :style="h2Style">{{ t('step.generate') }}</h2>
-        <button @click="prev('DRAFTS')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
-        <button @click="regenerateDrafts" :style="buttonStyle">{{ t('button.regenerateDrafts') }}</button>
-        <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
-          <div>{{ tf('label.draftIndex', { n: d.index }) }}</div>
-          <label :style="labelStyle">{{ t('label.caption') }}</label>
-          <input v-model="d.caption" :style="inputStyle" />
-          <label :style="labelStyle">{{ t('label.prompt') }}</label>
-          <textarea v-model="d.imagePrompt" :style="textareaStyle"></textarea>
-          <button @click="saveDraft(d)" :style="buttonStyle">{{ t('button.saveDraft') }}</button>
+      <section v-else-if="step === 'GENERATE'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.generate') }}</h2>
+        <button @click="prev('DRAFTS')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
+        <button @click="regenerateDrafts" :class="buttonClass">{{ t('button.regenerateDrafts') }}</button>
+        <div v-for="d in drafts" :key="d.id" class="my-3 rounded-lg border border-slate-200 bg-white p-3">
+          <div class="text-sm text-slate-600">{{ tf('label.draftIndex', { n: d.index }) }}</div>
+          <label :class="labelClass">{{ t('label.caption') }}</label>
+          <input v-model="d.caption" :class="inputClass" />
+          <label :class="labelClass">{{ t('label.prompt') }}</label>
+          <textarea v-model="d.imagePrompt" :class="textareaClass"></textarea>
+          <button @click="saveDraft(d)" :class="buttonClass">{{ t('button.saveDraft') }}</button>
         </div>
-        <button @click="generateStickers" :style="primaryButtonStyle">{{ t('button.generateStickers') }}</button>
+        <button @click="generateStickers" :class="primaryButtonClass">{{ t('button.generateStickers') }}</button>
       </section>
 
-      <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
-        <h2 :style="h2Style">{{ t('step.preview') }}</h2>
-        <button @click="prev('GENERATE')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
-        <div style="margin: 8px 0;">
-          <label :style="labelStyle">{{ t('label.grid') }}</label>
-          <select v-model="gridCols" :style="selectStyle">
+      <section v-else-if="step === 'PREVIEW'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.preview') }}</h2>
+        <button @click="prev('GENERATE')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
+        <div class="my-2">
+          <label :class="labelClass">{{ t('label.grid') }}</label>
+          <select v-model="gridCols" :class="selectClass">
             <option :value="4">{{ t('grid.4') }}</option>
             <option :value="5">{{ t('grid.5') }}</option>
             <option :value="6">{{ t('grid.6') }}</option>
             <option :value="8">{{ t('grid.8') }}</option>
           </select>
         </div>
-        <div :style="{ display: 'grid', gridTemplateColumns: 'repeat(' + gridCols + ', 1fr)', gap: '10px' }">
-          <div v-for="s in stickers" :key="s.id" style="border:1px solid #eee; padding:8px; text-align:center;">
-            <img :src="s.transparentUrl || s.imageUrl" style="width:100%; height:auto; max-width:140px;" />
-            <div style="font-size:12px; color:#666; margin-top:4px;">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">({{ t('status.bgDone') }})</span></div>
-            <button @click="regenerateSticker(s.id)" :style="buttonStyle" style="margin-top:6px;">{{ t('button.regenerateOne') }}</button>
+        <div class="grid gap-2" :style="{ gridTemplateColumns: 'repeat(' + gridCols + ', minmax(0, 1fr))' }">
+          <div v-for="s in stickers" :key="s.id" class="rounded border border-slate-200 bg-white p-2 text-center">
+            <img :src="s.transparentUrl || s.imageUrl" class="mx-auto w-full max-w-[140px]" />
+            <div class="mt-1 text-xs text-slate-500">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">({{ t('status.bgDone') }})</span></div>
+            <button @click="regenerateSticker(s.id)" :class="buttonClass" class="mt-2">{{ t('button.regenerateOne') }}</button>
           </div>
         </div>
-        <div style="margin:12px 0;">
-          <button @click="removeBackground" :style="buttonStyle">{{ t('button.removeBg') }}</button>
-          <button @click="exportZip" :style="primaryButtonStyle" style="margin-left:8px;" :disabled="stickers.length === 0">{{ t('button.export') }}</button>
-          <p style="color:#666; margin-top:6px;">{{ t('hint.removeBg') }}</p>
-          <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">{{ t('status.bgDone') }}</p>
+        <div class="my-3">
+          <button @click="removeBackground" :class="buttonClass">{{ t('button.removeBg') }}</button>
+          <button @click="exportZip" :class="primaryButtonClass" class="ml-2" :disabled="stickers.length === 0">{{ t('button.export') }}</button>
+          <p class="mt-2 text-sm text-slate-500">{{ t('hint.removeBg') }}</p>
+          <p class="mt-1 text-sm text-green-600" v-if="stickers.some(s => s.transparentUrl)">{{ t('status.bgDone') }}</p>
         </div>
-        <div v-if="downloadUrl" style="margin-top:8px; padding:8px; background:#f0fdf4; border:1px solid #bbf7d0;">
-          <div style="color:#166534; font-weight:600;">{{ t('status.exportDone') }}</div>
-          <div>{{ t('label.download') }}：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></div>
+        <div v-if="downloadUrl" class="mt-2 rounded border border-green-200 bg-green-50 p-2">
+          <div class="font-semibold text-green-800">{{ t('status.exportDone') }}</div>
+          <div class="text-sm">{{ t('label.download') }}：<a :href="downloadUrl" target="_blank" class="text-blue-600 underline">{{ downloadUrl }}</a></div>
         </div>
-        <div v-if="exportWarnings.length" style="margin-top:8px; padding:8px; background:#fff7ed; border:1px solid #fed7aa;">
-          <div style="color:#9a3412; font-weight:600;">{{ t('label.warnTitle') }}</div>
-          <ul style="margin:6px 0 0 16px;">
-            <li v-for="w in exportWarnings" :key="w" style="color:#9a3412;">{{ w }}</li>
+        <div v-if="exportWarnings.length" class="mt-2 rounded border border-orange-200 bg-orange-50 p-2">
+          <div class="font-semibold text-orange-800">{{ t('label.warnTitle') }}</div>
+          <ul class="mt-1 list-disc pl-5">
+            <li v-for="w in exportWarnings" :key="w" class="text-sm text-orange-800">{{ w }}</li>
           </ul>
         </div>
-        <div v-if="stickers.length" style="margin-top:12px; display:flex; gap:12px; align-items:center;">
+        <div v-if="stickers.length" class="mt-3 flex items-center gap-3">
           <div>
-            <div style="font-size:12px; color:#666;">{{ t('label.main') }} 240×240</div>
-            <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" style="width:120px; height:120px; border:1px solid #eee;" />
+            <div class="text-xs text-slate-500">{{ t('label.main') }} 240×240</div>
+            <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" class="h-[120px] w-[120px] border border-slate-200" />
           </div>
           <div>
-            <div style="font-size:12px; color:#666;">{{ t('label.tab') }} 96×74</div>
-            <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" style="width:96px; height:74px; border:1px solid #eee;" />
+            <div class="text-xs text-slate-500">{{ t('label.tab') }} 96×74</div>
+            <img :src="stickers[0].transparentUrl || stickers[0].imageUrl" class="h-[74px] w-[96px] border border-slate-200" />
           </div>
         </div>
       </section>
