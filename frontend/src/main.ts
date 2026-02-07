@@ -64,10 +64,6 @@ createApp({
     onMounted(async () => {
       try {
         providers.value = await api.listProviders()
-        const found = providers.value.find((p) => p.id === selectedProvider.value)
-        if (found && found.models.length > 0) {
-          selectedModel.value = found.models[0]
-        }
       } catch {
         // ignore provider fetch errors for MVP
       }
@@ -178,6 +174,17 @@ createApp({
         await api.verifyAICredentials(project.value.id)
         const verified = await api.listVerifiedProviders(project.value.id)
         verifiedProviders.value = verified.providers || []
+        if (verifiedProviders.value.length > 0) {
+          const p0 = verifiedProviders.value[0]
+          selectedProvider.value = p0.id
+          selectedModel.value = p0.models[0] || ''
+          textProvider.value = p0.id
+          textModel.value = p0.models[0] || ''
+          imageProvider.value = p0.id
+          imageModel.value = p0.models[0] || ''
+          bgProvider.value = p0.id
+          bgModel.value = p0.models[0] || ''
+        }
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
@@ -339,14 +346,14 @@ createApp({
         <input v-model="theme" style="width: 100%; margin: 8px 0;" />
 
         <div style="margin: 8px 0;">
-          <label>預設 AI 供應商</label>
+          <label>預設 AI 供應商（僅顯示已驗證）</label>
           <select v-model="selectedProvider">
-            <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
 
           <label style="margin-left:8px;">預設模型</label>
           <select v-model="selectedModel">
-            <option v-for="m in (providers.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
+            <option v-for="m in (verifiedProviders.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
 
@@ -358,7 +365,7 @@ createApp({
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>文字生成</strong>（必填）<br/>
           <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })">
-            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
           <select v-model="textModel">
             <option v-for="m in (verifiedProviders.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
@@ -369,7 +376,7 @@ createApp({
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>圖像生成</strong>（必填）<br/>
           <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })">
-            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
           <select v-model="imageModel">
             <option v-for="m in (verifiedProviders.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
@@ -380,7 +387,7 @@ createApp({
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>去背</strong>（必填）<br/>
           <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })">
-            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name }}</option>
+            <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
           <select v-model="bgModel">
             <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
