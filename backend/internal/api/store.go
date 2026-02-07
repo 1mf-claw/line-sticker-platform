@@ -288,6 +288,7 @@ func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 	for rows.Next() {
 		var id, imageURL string
 		_ = rows.Scan(&id, &imageURL)
+		// NOTE: keep subject intact when removing background
 		transparentURL, _ := pipeline.RemoveBackground(imageURL)
 		_, _ = s.db.Exec(`UPDATE stickers SET transparent_url=? WHERE id=?`, transparentURL, id)
 	}
