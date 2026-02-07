@@ -34,6 +34,7 @@ createApp({
     const jobProgress = ref(0)
     const jobError = ref('')
     const lastAction = ref('')
+    const exportWarnings = ref<string[]>([])
     const gridCols = ref(4)
 
     const title = ref('LINE Sticker Project')
@@ -274,9 +275,9 @@ createApp({
         lastAction.value = 'exportZip'
         const res = await api.exportZip(project.value.id)
         downloadUrl.value = res.downloadUrl
-        if (res.warnings && res.warnings.length > 0) {
+        exportWarnings.value = res.warnings || []
+        if (exportWarnings.value.length > 0) {
           error.value = '輸出完成，但有部分貼圖未通過檢核'
-          success.value = res.warnings.join('，')
         } else {
           success.value = '輸出成功，已完成規格檢核'
         }
@@ -314,6 +315,7 @@ createApp({
       jobProgress,
       jobError,
       retryLastAction,
+      exportWarnings,
       title,
       theme,
       stickerCount,
@@ -513,6 +515,12 @@ createApp({
           <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">去背完成</p>
         </div>
         <p v-if="downloadUrl">下載連結：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></p>
+        <div v-if="exportWarnings.length" style="margin-top:8px; padding:8px; background:#fff7ed; border:1px solid #fed7aa;">
+          <div style="color:#9a3412; font-weight:600;">檢核警告</div>
+          <ul style="margin:6px 0 0 16px;">
+            <li v-for="w in exportWarnings" :key="w" style="color:#9a3412;">{{ w }}</li>
+          </ul>
+        </div>
         <div v-if="stickers.length" style="margin-top:12px; display:flex; gap:12px; align-items:center;">
           <div>
             <div style="font-size:12px; color:#666;">主圖 240×240</div>
