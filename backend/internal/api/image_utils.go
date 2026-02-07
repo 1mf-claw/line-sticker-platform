@@ -19,6 +19,10 @@ const (
 )
 
 func normalizeStickerImage(imageURL string) (string, error) {
+	return normalizeImageToSize(imageURL, stickerWidth, stickerHeight)
+}
+
+func normalizeImageToSize(imageURL string, targetW, targetH int) (string, error) {
 	if imageURL == "" {
 		return "", errors.New("empty image url")
 	}
@@ -42,8 +46,8 @@ func normalizeStickerImage(imageURL string) (string, error) {
 		return "", errors.New("invalid image")
 	}
 
-	scaleW := float64(stickerWidth) / float64(bw)
-	scaleH := float64(stickerHeight) / float64(bh)
+	scaleW := float64(targetW) / float64(bw)
+	scaleH := float64(targetH) / float64(bh)
 	scale := scaleW
 	if scaleH < scaleW {
 		scale = scaleH
@@ -56,10 +60,10 @@ func normalizeStickerImage(imageURL string) (string, error) {
 	if newH < 1 {
 		newH = 1
 	}
-	offX := (stickerWidth - newW) / 2
-	offY := (stickerHeight - newH) / 2
+	offX := (targetW - newW) / 2
+	offY := (targetH - newH) / 2
 
-	dst := image.NewRGBA(image.Rect(0, 0, stickerWidth, stickerHeight))
+	dst := image.NewRGBA(image.Rect(0, 0, targetW, targetH))
 	dstRect := image.Rect(offX, offY, offX+newW, offY+newH)
 	draw.CatmullRom.Scale(dst, dstRect, src, src.Bounds(), draw.Over, nil)
 

@@ -52,6 +52,28 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 		}
 		_, _ = w.Write(data)
 	}
+
+	// main + tab images (LINE requirement)
+	baseURL := stickers[0].TransparentURL
+	if baseURL == "" {
+		baseURL = stickers[0].ImageURL
+	}
+	if baseURL != "" {
+		if mainData, err := normalizeImageToSize(baseURL, 240, 240); err == nil {
+			if data, err := fetchPNG(mainData); err == nil {
+				if w, err := zw.Create("main.png"); err == nil {
+					_, _ = w.Write(data)
+				}
+			}
+		}
+		if tabData, err := normalizeImageToSize(baseURL, 96, 74); err == nil {
+			if data, err := fetchPNG(tabData); err == nil {
+				if w, err := zw.Create("tab.png"); err == nil {
+					_, _ = w.Write(data)
+				}
+			}
+		}
+	}
 	if err := zw.Close(); err != nil {
 		return "", err
 	}
