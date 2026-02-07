@@ -51,6 +51,10 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 		if err != nil {
 			continue
 		}
+		if ok := validatePNGSize(data, stickerWidth, stickerHeight); !ok {
+			// skip invalid size
+			continue
+		}
 		name := fmt.Sprintf("%02d.png", i+1)
 		w, err := zw.Create(name)
 		if err != nil {
@@ -67,15 +71,19 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 	if baseURL != "" {
 		if mainData, err := normalizeImageToSize(baseURL, 240, 240); err == nil {
 			if data, err := fetchPNG(mainData); err == nil {
-				if w, err := zw.Create("main.png"); err == nil {
-					_, _ = w.Write(data)
+				if validatePNGSize(data, 240, 240) {
+					if w, err := zw.Create("main.png"); err == nil {
+						_, _ = w.Write(data)
+					}
 				}
 			}
 		}
 		if tabData, err := normalizeImageToSize(baseURL, 96, 74); err == nil {
 			if data, err := fetchPNG(tabData); err == nil {
-				if w, err := zw.Create("tab.png"); err == nil {
-					_, _ = w.Write(data)
+				if validatePNGSize(data, 96, 74) {
+					if w, err := zw.Create("tab.png"); err == nil {
+						_, _ = w.Write(data)
+					}
 				}
 			}
 		}
