@@ -18,6 +18,7 @@ type Step =
   | 'PREVIEW'
 
 createApp({
+  components: { Notice },
   setup() {
     const step = ref<Step>('CREATE_PROJECT')
     const loading = ref(false)
