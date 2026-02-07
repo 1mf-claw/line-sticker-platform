@@ -942,7 +942,10 @@ createApp({
 
       <section v-else-if="step === 'CHARACTER'" :class="sectionClass">
         <h2 :class="h2Class">{{ t('step.character') }}</h2>
-        <button @click="prev('CREATE_PROJECT')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
+        <div class="mb-2 flex items-center gap-2">
+          <button @click="prev('CREATE_PROJECT')" :class="buttonClass">{{ t('button.back') }}</button>
+          <button @click="createCharacter" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        </div>
         <label :class="labelClass">{{ t('label.source') }}</label>
         <select v-model="characterReq.sourceType" :class="selectClass">
           <option value="AI">{{ t('option.source.ai') }}</option>
@@ -958,13 +961,10 @@ createApp({
           <label :class="labelClass">{{ t('label.referenceUrl') }}</label>
           <input v-model="characterReq.referenceImageUrl" :class="inputClass" />
         </div>
-
-        <button @click="createCharacter" :class="primaryButtonClass">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'THEME'" :class="sectionClass">
         <h2 :class="h2Class">{{ t('step.theme') }}</h2>
-        <button @click="prev('CHARACTER')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
         <label :class="labelClass">{{ t('label.theme') }}</label>
         <input v-model="theme" :class="inputClass" />
 
@@ -1028,19 +1028,23 @@ createApp({
           <div v-if="verifiedProviders.length === 0" class="mt-1 text-sm text-slate-400">{{ t('helper.noVerified') }}</div>
         </div>
 
-        <button @click="updateTheme" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        <div class="mt-2 flex items-center gap-2">
+          <button @click="prev('CHARACTER')" :class="buttonClass">{{ t('button.back') }}</button>
+          <button @click="updateTheme" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        </div>
       </section>
 
       <section v-else-if="step === 'DRAFTS'" :class="sectionClass">
         <h2 :class="h2Class">{{ t('step.drafts') }}</h2>
-        <button @click="prev('THEME')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
         <p class="text-sm text-slate-600">{{ t('desc.drafts') }}</p>
-        <button @click="generateDrafts" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        <div class="mt-2 flex items-center gap-2">
+          <button @click="prev('THEME')" :class="buttonClass">{{ t('button.back') }}</button>
+          <button @click="generateDrafts" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        </div>
       </section>
 
       <section v-else-if="step === 'GENERATE'" :class="sectionClass">
         <h2 :class="h2Class">{{ t('step.generate') }}</h2>
-        <button @click="prev('DRAFTS')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
         <button @click="regenerateDrafts" :class="buttonClass">{{ t('button.regenerateDrafts') }}</button>
         <div v-for="d in drafts" :key="d.id" class="my-3 rounded-lg border border-slate-200 bg-white p-3">
           <div class="text-sm text-slate-600">{{ tf('label.draftIndex', { n: d.index }) }}</div>
@@ -1050,12 +1054,14 @@ createApp({
           <textarea v-model="d.imagePrompt" :class="textareaClass"></textarea>
           <button @click="saveDraft(d)" :class="buttonClass">{{ t('button.saveDraft') }}</button>
         </div>
-        <button @click="generateStickers" :class="primaryButtonClass">{{ t('button.generateStickers') }}</button>
+        <div class="mt-2 flex items-center gap-2">
+          <button @click="prev('DRAFTS')" :class="buttonClass">{{ t('button.back') }}</button>
+          <button @click="generateStickers" :class="primaryButtonClass">{{ t('button.generateStickers') }}</button>
+        </div>
       </section>
 
       <section v-else-if="step === 'PREVIEW'" :class="sectionClass">
         <h2 :class="h2Class">{{ t('step.preview') }}</h2>
-        <button @click="prev('GENERATE')" :class="buttonClass" class="mb-2">{{ t('button.back') }}</button>
         <div class="my-2">
           <label :class="labelClass">{{ t('label.grid') }}</label>
           <select v-model="gridCols" :class="selectClass">
