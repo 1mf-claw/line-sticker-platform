@@ -17,11 +17,15 @@ func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := os.Getenv("CORS_ALLOW_ORIGIN")
 		if origin == "" {
-			origin = "http://localhost:5173" // default for local dev
+			origin = r.Header.Get("Origin")
+			if origin == "" {
+				origin = "*"
+			}
 		}
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Max-Age", "600")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
