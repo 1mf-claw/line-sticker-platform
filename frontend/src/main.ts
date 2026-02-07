@@ -636,6 +636,7 @@ createApp({
     })
 
     const next = (s: Step) => (step.value = s)
+    const prev = (s: Step) => (step.value = s)
 
     onMounted(async () => {
       try {
@@ -922,6 +923,7 @@ createApp({
       createProject,
       createCharacter,
       updateTheme,
+      prev,
       generateDrafts,
       saveDraft,
       regenerateDrafts,
@@ -977,6 +979,7 @@ createApp({
 
       <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.character') }}</h2>
+        <button @click="prev('CREATE_PROJECT')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
         <label :style="labelStyle">{{ t('label.source') }}</label>
         <select v-model="characterReq.sourceType" :style="selectStyle">
           <option value="AI">{{ t('option.source.ai') }}</option>
@@ -998,6 +1001,7 @@ createApp({
 
       <section v-else-if="step === 'THEME'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.theme') }}</h2>
+        <button @click="prev('CHARACTER')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
         <label :style="labelStyle">{{ t('label.theme') }}</label>
         <input v-model="theme" :style="inputStyle" />
 
@@ -1066,12 +1070,14 @@ createApp({
 
       <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.drafts') }}</h2>
+        <button @click="prev('THEME')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
         <p>{{ t('desc.drafts') }}</p>
         <button @click="generateDrafts" :style="primaryButtonStyle">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'GENERATE'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.generate') }}</h2>
+        <button @click="prev('DRAFTS')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
         <button @click="regenerateDrafts" :style="buttonStyle">{{ t('button.regenerateDrafts') }}</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
           <div>{{ tf('label.draftIndex', { n: d.index }) }}</div>
@@ -1086,6 +1092,7 @@ createApp({
 
       <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.preview') }}</h2>
+        <button @click="prev('GENERATE')" :style="buttonStyle" style="margin-bottom:8px;">←</button>
         <div style="margin: 8px 0;">
           <label :style="labelStyle">{{ t('label.grid') }}</label>
           <select v-model="gridCols" :style="selectStyle">
