@@ -439,7 +439,7 @@ createApp({
           <input v-model="characterReq.prompt" style="width: 100%; margin: 8px 0;" />
         </div>
         <div v-else>
-          <label>Reference 圖片 URL</label>
+          <label :style="labelStyle">Reference 圖片 URL</label>
           <input v-model="characterReq.referenceImageUrl" style="width: 100%; margin: 8px 0;" />
         </div>
 
@@ -464,7 +464,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0;">
-          <label>預設自訂模型 ID（可選）</label>
+          <label :style="labelStyle">預設自訂模型 ID（可選）</label>
           <input v-model="customModel" placeholder="replicate model version / openai model" style="width:100%; margin:6px 0;" />
         </div>
 
@@ -503,11 +503,11 @@ createApp({
         </div>
 
         <div style="margin: 8px 0;">
-          <label>API Key（只會暫存於記憶體）</label>
+          <label :style="labelStyle">API Key（只會暫存於記憶體）</label>
           <input v-model="apiKey" type="password" style="width:100%; margin:6px 0;" />
-          <label>API Base（可選）</label>
+          <label :style="labelStyle">API Base（可選）</label>
           <input v-model="apiBase" placeholder="https://api.openai.com" style="width:100%; margin:6px 0;" />
-          <small>完成驗證後，才能選擇下方模型</small>
+          <small :style="{ color: colors.muted }">完成驗證後，才能選擇下方模型</small>
           <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">尚未驗證通過的 provider/model</div>
         </div>
 
@@ -525,9 +525,9 @@ createApp({
         <button @click="regenerateDrafts" :style="buttonStyle">重生全部草稿</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
           <div>第 {{ d.index }} 張</div>
-          <label>配字</label>
+          <label :style="labelStyle">配字</label>
           <input v-model="d.caption" style="width:100%; margin:6px 0;" />
-          <label>描述</label>
+          <label :style="labelStyle">描述</label>
           <textarea v-model="d.imagePrompt" style="width:100%; margin:6px 0;"></textarea>
           <button @click="saveDraft(d)" :style="buttonStyle">保存此草稿</button>
         </div>
@@ -537,7 +537,7 @@ createApp({
       <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
         <h2>6. 預覽</h2>
         <div style="margin: 8px 0;">
-          <label>格數：</label>
+          <label :style="labelStyle">格數：</label>
           <select v-model="gridCols">
             <option :value="4">4（40 張）</option>
             <option :value="5">5（24 張）</option>
