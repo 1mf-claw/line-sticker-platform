@@ -322,7 +322,9 @@ func (s *Store) Export(projectID string) (*ExportResponse, bool) {
 	if err != nil {
 		return nil, false
 	}
-	_ = zipPath
+	if zipPath == "" {
+		return nil, false
+	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "DONE", projectID)
 	return &ExportResponse{DownloadURL: "/api/v1/exports/" + projectID + ".zip"}, true
 }

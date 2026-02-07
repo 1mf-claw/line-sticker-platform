@@ -42,6 +42,7 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 		return sorted[i].CreatedAt < sorted[j].CreatedAt
 	})
 
+	written := 0
 	for i, s := range sorted {
 		url := s.TransparentURL
 		if url == "" {
@@ -52,7 +53,6 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 			continue
 		}
 		if ok := validatePNGSize(data, stickerWidth, stickerHeight); !ok {
-			// skip invalid size
 			continue
 		}
 		name := fmt.Sprintf("%02d.png", i+1)
@@ -61,6 +61,7 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 			continue
 		}
 		_, _ = w.Write(data)
+		written++
 	}
 
 	// main + tab images (LINE requirement)
@@ -91,6 +92,10 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 	// add simple spec/readme
 	if w, err := zw.Create("README.txt"); err == nil {
 		_, _ = w.Write([]byte("LINE Stickers Export\n- Sticker: 370x320 PNG (transparent)\n- main.png: 240x240 PNG\n- tab.png: 96x74 PNG\n"))
+	}
+	if w, err := zw.Create("metadata.json"); err == nil {
+		meta := fmt.Sprintf("{\n  \"projectId\": \"%s\",\n  \"stickers\": %d,\n  \"main\": \"main.png\",\n  \"tab\": \"tab.png\"\n}\n", projectID, written)
+		_, _ = w.Write([]byte(meta))
 	}
 
 	if err := zw.Close(); err != nil {
