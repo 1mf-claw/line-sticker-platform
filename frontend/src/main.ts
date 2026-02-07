@@ -85,6 +85,10 @@ createApp({
       verifiedProviders.value = []
     })
 
+    const bgRecommendMap: Record<string, string> = {
+      replicate: 'cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003',
+    }
+
     const syncDefaultModel = (providerRef: any, modelRef: any, customRef: any) => {
       const p = verifiedProviders.value.find((x) => x.id === providerRef.value)
       if (p && p.models.length > 0) {
@@ -193,7 +197,7 @@ createApp({
           imageProvider.value = p0.id
           imageModel.value = p0.models[0] || ''
           bgProvider.value = p0.id
-          bgModel.value = p0.models[0] || ''
+          bgModel.value = bgRecommendMap[p0.id] || (p0.models[0] || '')
         }
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
@@ -406,6 +410,7 @@ createApp({
             <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
           <input v-model="bgCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
+          <div style="color:#666; margin-top:4px;" v-if="bgRecommendMap[bgProvider]">推薦去背模型：{{ bgRecommendMap[bgProvider] }}</div>
         </div>
 
         <div style="margin: 8px 0;">
