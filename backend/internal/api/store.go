@@ -152,7 +152,9 @@ func (s *Store) ListProjects() []*Project {
 func (s *Store) CreateCharacter(projectID string, req CharacterCreateRequest) (*Character, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if _, ok := s.GetProject(projectID); !ok {
+	row := s.db.QueryRow(`SELECT id FROM projects WHERE id=?`, projectID)
+	var pid string
+	if err := row.Scan(&pid); err != nil {
 		return nil, false
 	}
 	id := newID("char")
