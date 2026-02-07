@@ -22,6 +22,7 @@ createApp({
     const loading = ref(false)
     const error = ref('')
     const success = ref('')
+    const verified = ref(false)
 
     const project = ref<Project | null>(null)
     const drafts = ref<Draft[]>([])
@@ -176,6 +177,7 @@ createApp({
         await api.verifyAICredentials(project.value.id)
         const verified = await api.listVerifiedProviders(project.value.id)
         verifiedProviders.value = verified.providers || []
+        verified.value = verifiedProviders.value.length > 0
         if (verifiedProviders.value.length > 0) {
           const p0 = verifiedProviders.value[0]
           selectedProvider.value = p0.id
@@ -256,6 +258,7 @@ createApp({
       loading,
       error,
       success,
+      verified,
       project,
       drafts,
       stickers,
@@ -351,12 +354,12 @@ createApp({
 
         <div style="margin: 8px 0;">
           <label>預設 AI 供應商（僅顯示已驗證）</label>
-          <select v-model="selectedProvider">
+          <select v-model="selectedProvider" :disabled="!verified">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
 
           <label style="margin-left:8px;">預設模型</label>
-          <select v-model="selectedModel">
+          <select v-model="selectedModel" :disabled="!verified">
             <option v-for="m in (verifiedProviders.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
@@ -368,35 +371,35 @@ createApp({
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>文字生成</strong>（必填）<br/>
-          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })">
+          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })" :disabled="!verified">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="textModel">
+          <select v-model="textModel" :disabled="!verified">
             <option v-for="m in (verifiedProviders.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="textCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
+          <input v-model="textCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>圖像生成</strong>（必填）<br/>
-          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })">
+          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })" :disabled="!verified">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="imageModel">
+          <select v-model="imageModel" :disabled="!verified">
             <option v-for="m in (verifiedProviders.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="imageCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
+          <input v-model="imageCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>去背</strong>（必填）<br/>
-          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })">
+          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="bgModel">
+          <select v-model="bgModel" :disabled="!verified">
             <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="bgCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" />
+          <input v-model="bgCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
         </div>
 
         <div style="margin: 8px 0;">
@@ -404,6 +407,7 @@ createApp({
           <input v-model="apiKey" type="password" style="width:100%; margin:6px 0;" />
           <label>API Base（可選）</label>
           <input v-model="apiBase" placeholder="https://api.openai.com" style="width:100%; margin:6px 0;" />
+          <small>完成驗證後，才能選擇下方模型</small>
         </div>
 
         <button @click="updateTheme">下一步</button>
