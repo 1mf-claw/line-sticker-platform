@@ -880,6 +880,7 @@ createApp({
       bgProvider,
       bgModel,
       bgCustom,
+      bgRecommendMap,
       apiKey,
       apiBase,
       characterReq,
