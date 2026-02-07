@@ -355,12 +355,15 @@ createApp({
       <Notice :message="success" type="success" />
       <Notice v-if="loading" message="處理中..." type="info" />
 
-      <div v-if="jobStatus" style="margin: 12px 0;">
-        <div>Job 狀態：{{ jobStatus }}</div>
-        <div style="background:#eee; height:8px; border-radius:4px; overflow:hidden;">
+      <div v-if="jobStatus" style="margin: 12px 0; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:600;">Job 狀態：{{ jobStatus }}</div>
+          <div style="font-size:12px; color:#6b7280;">{{ jobProgress }}%</div>
+        </div>
+        <div style="background:#eef2f7; height:8px; border-radius:4px; overflow:hidden; margin-top:6px;">
           <div :style="{ width: jobProgress + '%', background:'#4ade80', height:'8px' }"></div>
         </div>
-        <div v-if="jobError" style="color:#b91c1c; margin-top:6px;">
+        <div v-if="jobError" style="color:#b91c1c; margin-top:8px;">
           {{ jobError }}
           <button @click="retryLastAction" style="margin-left:8px;">重試</button>
         </div>
@@ -514,7 +517,10 @@ createApp({
           <p style="color:#666; margin-top:6px;">提示：去背模型需保留主角完整，避免切掉頭髮/手。</p>
           <p style="color:#16a34a; margin-top:4px;" v-if="stickers.some(s => s.transparentUrl)">去背完成</p>
         </div>
-        <p v-if="downloadUrl">下載連結：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></p>
+        <div v-if="downloadUrl" style="margin-top:8px; padding:8px; background:#f0fdf4; border:1px solid #bbf7d0;">
+          <div style="color:#166534; font-weight:600;">輸出完成</div>
+          <div>下載連結：<a :href="downloadUrl" target="_blank">{{ downloadUrl }}</a></div>
+        </div>
         <div v-if="exportWarnings.length" style="margin-top:8px; padding:8px; background:#fff7ed; border:1px solid #fed7aa;">
           <div style="color:#9a3412; font-weight:600;">檢核警告</div>
           <ul style="margin:6px 0 0 16px;">
