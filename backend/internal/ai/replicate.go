@@ -123,7 +123,42 @@ func (a ReplicateAdapter) GenerateImage(apiKey, apiBase, model, prompt string, c
 }
 
 func (a ReplicateAdapter) RemoveBackground(apiKey, apiBase, model, imageURL string) (string, error) {
-	return imageURL, nil
+	base := apiBase
+	if base == "" {
+		base = "https://api.replicate.com/v1"
+	}
+	payload := replicateRequest{
+		Version: model,
+		Input: map[string]interface{}{
+			"image": imageURL,
+			"image_url": imageURL,
+			"background": "transparent",
+		},
+	}
+	body, _ := json.Marshal(payload)
+	respBody, err := retry(3, 300*time.Millisecond, func() ([]byte, error) {
+		return doReplicateJSON(base+"/predictions", apiKey, body)
+	})
+	if err != nil {
+		return imageURL, err
+	}
+	var r replicateResponse
+	if err := json.Unmarshal(respBody, &r); err != nil {
+		return imageURL, err
+	}
+	if r.URLs.Get == "" {
+		return imageURL, errors.New("no prediction url")
+	}
+	out, err := retry(3, 300*time.Millisecond, func() (interface{}, error) {
+		return replicatePoll(r.URLs.Get, apiKey)
+	})
+	if err != nil {
+		return imageURL, err
+	}
+	if url := extractURL(out); url != "" {
+		return url, nil
+	}
+	return imageURL, errors.New("unexpected output")
 }
 
 func doReplicateJSON(url, apiKey string, body []byte) ([]byte, error) {
@@ -163,4 +198,18 @@ func replicatePoll(url, apiKey string) (interface{}, error) {
 		return nil, err
 	}
 	return r.Output, nil
+}
+
+func extractURL(out interface{}) string {
+	switch v := out.(type) {
+	case string:
+		return v
+	case []interface{}:
+		if len(v) > 0 {
+			if s, ok := v[0].(string); ok {
+				return s
+			}
+		}
+	}
+	return ""
 }
