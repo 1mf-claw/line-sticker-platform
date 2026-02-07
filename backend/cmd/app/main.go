@@ -22,11 +22,16 @@ func withCORS(next http.Handler) http.Handler {
 				origin = "*"
 			}
 		}
+		allowHeaders := r.Header.Get("Access-Control-Request-Headers")
+		if allowHeaders == "" {
+			allowHeaders = "Content-Type, Authorization, X-Requested-With"
+		}
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Headers", allowHeaders)
 		w.Header().Set("Access-Control-Max-Age", "600")
 
+		log.Printf("%s %s", r.Method, r.URL.Path)
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
