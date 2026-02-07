@@ -293,6 +293,9 @@ func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 		if transparentURL == "" {
 			transparentURL = imageURL
 		}
+		if normalized, err := normalizeStickerImage(transparentURL); err == nil {
+			transparentURL = normalized
+		}
 		_, _ = s.db.Exec(`UPDATE stickers SET transparent_url=? WHERE id=?`, transparentURL, id)
 	}
 	job := s.newJob("REMOVE_BG", projectID, "")
