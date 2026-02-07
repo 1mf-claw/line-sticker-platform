@@ -16,23 +16,23 @@ import (
 	"time"
 )
 
-func buildExportZip(projectID string, stickers []Sticker) (string, error) {
+func buildExportZip(projectID string, stickers []Sticker) (string, []string, error) {
 	if projectID == "" {
-		return "", errors.New("missing project id")
+		return "", nil, errors.New("missing project id")
 	}
 	if len(stickers) == 0 {
-		return "", errors.New("no stickers")
+		return "", nil, errors.New("no stickers")
 	}
 
 	baseDir := filepath.Join(os.TempDir(), "line-sticker-exports")
 	if err := os.MkdirAll(baseDir, 0o755); err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	zipPath := filepath.Join(baseDir, fmt.Sprintf("%s.zip", projectID))
 	f, err := os.Create(zipPath)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer f.Close()
 
@@ -42,6 +42,7 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 		return sorted[i].CreatedAt < sorted[j].CreatedAt
 	})
 
+	warnings := []string{}
 	written := 0
 	for i, s := range sorted {
 		url := s.TransparentURL
@@ -50,9 +51,11 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 		}
 		data, err := fetchPNG(url)
 		if err != nil {
+			warnings = append(warnings, fmt.Sprintf("%s fetch failed", s.ID))
 			continue
 		}
 		if ok := validatePNGSize(data, stickerWidth, stickerHeight); !ok {
+			warnings = append(warnings, fmt.Sprintf("%s invalid size", s.ID))
 			continue
 		}
 		name := fmt.Sprintf("%02d.png", i+1)
@@ -97,11 +100,15 @@ func buildExportZip(projectID string, stickers []Sticker) (string, error) {
 		meta := fmt.Sprintf("{\n  \"projectId\": \"%s\",\n  \"stickers\": %d,\n  \"main\": \"main.png\",\n  \"tab\": \"tab.png\"\n}\n", projectID, written)
 		_, _ = w.Write([]byte(meta))
 	}
+	if w, err := zw.Create("report.json"); err == nil {
+		report := fmt.Sprintf("{\n  \"warnings\": %q\n}\n", warnings)
+		_, _ = w.Write([]byte(report))
+	}
 
 	if err := zw.Close(); err != nil {
-		return "", err
+		return "", nil, err
 	}
-	return zipPath, nil
+	return zipPath, warnings, nil
 }
 
 func fetchPNG(url string) ([]byte, error) {

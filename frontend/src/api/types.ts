@@ -113,4 +113,5 @@ export type Provider = {
 
 export type ExportResponse = {
   downloadUrl: string
+  warnings?: string[]
 }

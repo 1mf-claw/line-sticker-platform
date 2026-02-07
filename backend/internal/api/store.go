@@ -318,7 +318,7 @@ func (s *Store) Export(projectID string) (*ExportResponse, bool) {
 	if len(list) == 0 {
 		return nil, false
 	}
-	zipPath, err := buildExportZip(projectID, list)
+	zipPath, warnings, err := buildExportZip(projectID, list)
 	if err != nil {
 		return nil, false
 	}
@@ -326,7 +326,7 @@ func (s *Store) Export(projectID string) (*ExportResponse, bool) {
 		return nil, false
 	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "DONE", projectID)
-	return &ExportResponse{DownloadURL: "/api/v1/exports/" + projectID + ".zip"}, true
+	return &ExportResponse{DownloadURL: "/api/v1/exports/" + projectID + ".zip", Warnings: warnings}, true
 }
 
 func (s *Store) RegenerateSticker(stickerID string) (*Job, bool) {

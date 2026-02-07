@@ -274,7 +274,11 @@ createApp({
         lastAction.value = 'exportZip'
         const res = await api.exportZip(project.value.id)
         downloadUrl.value = res.downloadUrl
-        success.value = '輸出成功，已完成規格檢核'
+        if (res.warnings && res.warnings.length > 0) {
+          error.value = '輸出完成，但有部分貼圖未通過檢核'
+        } else {
+          success.value = '輸出成功，已完成規格檢核'
+        }
       })
 
     const retryLastAction = () => {

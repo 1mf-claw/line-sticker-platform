@@ -103,4 +103,5 @@ type ThemeSuggestResponse struct {
 
 type ExportResponse struct {
 	DownloadURL string `json:"downloadUrl"`
+	Warnings    []string `json:"warnings,omitempty"`
 }
