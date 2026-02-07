@@ -307,8 +307,20 @@ func (s *Store) RemoveBackground(projectID string) (*Job, bool) {
 func (s *Store) Export(projectID string) (*ExportResponse, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	rows, _ := s.db.Query(`SELECT id,project_id,draft_id,image_url,transparent_url,created_at FROM stickers WHERE project_id=?`, projectID)
+	defer rows.Close()
+	list := []Sticker{}
+	for rows.Next() {
+		var st Sticker
+		_ = rows.Scan(&st.ID, &st.ProjectID, &st.DraftID, &st.ImageURL, &st.TransparentURL, &st.CreatedAt)
+		list = append(list, st)
+	}
+	zipPath, err := buildExportZip(projectID, list)
+	if err != nil {
+		return nil, false
+	}
 	_, _ = s.db.Exec(`UPDATE projects SET status=? WHERE id=?`, "DONE", projectID)
-	return &ExportResponse{DownloadURL: "https://example.com/export.zip"}, true
+	return &ExportResponse{DownloadURL: "/api/v1/exports/" + projectID + ".zip"}, true
 }
 
 func (s *Store) RegenerateSticker(stickerID string) (*Job, bool) {

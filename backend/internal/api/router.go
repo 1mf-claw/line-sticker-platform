@@ -290,6 +290,16 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// /exports/{projectId}.zip
+	if len(segments) == 2 && segments[0] == "exports" {
+		if r.Method == http.MethodGet {
+			serveExport(w, r, segments[1])
+			return
+		}
+		writeStatus(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	// /jobs/{jobId}
 	if len(segments) == 2 && segments[0] == "jobs" {
 		if r.Method == http.MethodGet {
