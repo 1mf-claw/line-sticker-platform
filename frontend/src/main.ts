@@ -32,6 +32,8 @@ createApp({
 
     const jobStatus = ref('')
     const jobProgress = ref(0)
+    const jobError = ref('')
+    const lastAction = ref('')
     const gridCols = ref(4)
 
     const title = ref('LINE Sticker Project')
@@ -103,11 +105,16 @@ createApp({
     const pollJob = async (jobId: string) => {
       jobStatus.value = 'RUNNING'
       jobProgress.value = 0
+      jobError.value = ''
       for (let i = 0; i < 20; i++) {
         const job = await api.getJob(jobId)
         jobStatus.value = job.status
         jobProgress.value = job.progress ?? 0
-        if (job.status === 'SUCCESS' || job.status === 'FAILED') {
+        if (job.status === 'FAILED') {
+          jobError.value = job.errorMessage || '任務失敗，請稍後重試'
+          return job.status
+        }
+        if (job.status === 'SUCCESS') {
           return job.status
         }
         await sleep(500)
@@ -210,6 +217,7 @@ createApp({
     const generateDrafts = () =>
       run(async () => {
         if (!project.value) return
+        lastAction.value = 'generateDrafts'
         const job = await api.generateDrafts(project.value.id)
         await pollJob(job.id)
         drafts.value = await api.listDrafts(project.value.id)
@@ -227,6 +235,7 @@ createApp({
     const regenerateDrafts = () =>
       run(async () => {
         if (!project.value) return
+        lastAction.value = 'regenerateDrafts'
         const job = await api.generateDrafts(project.value.id)
         await pollJob(job.id)
         drafts.value = await api.listDrafts(project.value.id)
@@ -235,6 +244,7 @@ createApp({
     const generateStickers = () =>
       run(async () => {
         if (!project.value) return
+        lastAction.value = 'generateStickers'
         const job = await api.generateStickers(project.value.id)
         await pollJob(job.id)
         stickers.value = await api.listStickers(project.value.id)
@@ -252,6 +262,7 @@ createApp({
     const removeBackground = () =>
       run(async () => {
         if (!project.value) return
+        lastAction.value = 'removeBackground'
         const job = await api.removeBackground(project.value.id)
         await pollJob(job.id)
         stickers.value = await api.listStickers(project.value.id)
@@ -260,9 +271,28 @@ createApp({
     const exportZip = () =>
       run(async () => {
         if (!project.value) return
+        lastAction.value = 'exportZip'
         const res = await api.exportZip(project.value.id)
         downloadUrl.value = res.downloadUrl
       })
+
+    const retryLastAction = () => {
+      switch (lastAction.value) {
+        case 'generateDrafts':
+        case 'regenerateDrafts':
+          generateDrafts()
+          break
+        case 'generateStickers':
+          generateStickers()
+          break
+        case 'removeBackground':
+          removeBackground()
+          break
+        case 'exportZip':
+          exportZip()
+          break
+      }
+    }
 
     return {
       step,
@@ -276,6 +306,8 @@ createApp({
       downloadUrl,
       jobStatus,
       jobProgress,
+      jobError,
+      retryLastAction,
       title,
       theme,
       stickerCount,
@@ -319,6 +351,10 @@ createApp({
         <div>Job 狀態：{{ jobStatus }}</div>
         <div style="background:#eee; height:8px; border-radius:4px; overflow:hidden;">
           <div :style="{ width: jobProgress + '%', background:'#4ade80', height:'8px' }"></div>
+        </div>
+        <div v-if="jobError" style="color:#b91c1c; margin-top:6px;">
+          {{ jobError }}
+          <button @click="retryLastAction" style="margin-left:8px;">重試</button>
         </div>
       </div>
 
