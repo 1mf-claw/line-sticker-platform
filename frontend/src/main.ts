@@ -90,6 +90,107 @@ createApp({
     const h2Style = { fontSize: '18px', margin: '0 0 8px', color: colors.text }
     const labelStyle = { fontSize: '13px', color: colors.muted }
 
+    const locales = {
+      'zh-TW': { name: '繁體中文' },
+      'zh-CN': { name: '简体中文' },
+      en: { name: 'English' },
+      ja: { name: '日本語' },
+      ko: { name: '한국어' },
+    }
+    const localeOptions = Object.keys(locales)
+    const normalizeLocale = (val: string) => {
+      if (val.startsWith('zh-TW') || val.startsWith('zh-HK')) return 'zh-TW'
+      if (val.startsWith('zh')) return 'zh-CN'
+      if (val.startsWith('ja')) return 'ja'
+      if (val.startsWith('ko')) return 'ko'
+      return 'en'
+    }
+    const currentLocale = ref(normalizeLocale(navigator.language || 'en'))
+
+    const t = (key: string) => {
+      const dict: Record<string, Record<string, string>> = {
+        'app.title': {
+          'zh-TW': 'LINE 貼圖製作平台',
+          'zh-CN': 'LINE 表情制作平台',
+          en: 'LINE Sticker Studio',
+          ja: 'LINE スタンプ作成',
+          ko: 'LINE 스티커 제작',
+        },
+        'step.create': {
+          'zh-TW': '1. 建立專案',
+          'zh-CN': '1. 创建项目',
+          en: '1. Create Project',
+          ja: '1. プロジェクト作成',
+          ko: '1. 프로젝트 생성',
+        },
+        'step.character': {
+          'zh-TW': '2. 角色設定',
+          'zh-CN': '2. 角色设定',
+          en: '2. Character',
+          ja: '2. キャラクター',
+          ko: '2. 캐릭터',
+        },
+        'step.theme': {
+          'zh-TW': '3. 主題與焦點',
+          'zh-CN': '3. 主题与焦点',
+          en: '3. Theme & Focus',
+          ja: '3. テーマ',
+          ko: '3. 테마',
+        },
+        'step.drafts': {
+          'zh-TW': '4. 產生草稿',
+          'zh-CN': '4. 生成草稿',
+          en: '4. Drafts',
+          ja: '4. 下書き',
+          ko: '4. 초안',
+        },
+        'step.generate': {
+          'zh-TW': '5. 草稿確認 / 編輯',
+          'zh-CN': '5. 草稿确认 / 编辑',
+          en: '5. Review / Edit',
+          ja: '5. 確認 / 編集',
+          ko: '5. 확인 / 편집',
+        },
+        'step.preview': {
+          'zh-TW': '6. 預覽',
+          'zh-CN': '6. 预览',
+          en: '6. Preview',
+          ja: '6. プレビュー',
+          ko: '6. 미리보기',
+        },
+        'label.projectName': {
+          'zh-TW': '專案名稱',
+          'zh-CN': '项目名称',
+          en: 'Project Name',
+          ja: 'プロジェクト名',
+          ko: '프로젝트명',
+        },
+        'label.stickerCount': {
+          'zh-TW': '貼圖數量',
+          'zh-CN': '表情数量',
+          en: 'Sticker Count',
+          ja: '枚数',
+          ko: '개수',
+        },
+        'label.language': {
+          'zh-TW': '語言',
+          'zh-CN': '语言',
+          en: 'Language',
+          ja: '言語',
+          ko: '언어',
+        },
+        'button.next': {
+          'zh-TW': '下一步',
+          'zh-CN': '下一步',
+          en: 'Next',
+          ja: '次へ',
+          ko: '다음',
+        },
+      }
+      const loc = currentLocale.value
+      return dict[key]?.[loc] || dict[key]?.en || key
+    }
+
     const title = ref('LINE Sticker Project')
     const theme = ref('')
     const stickerCount = ref<8 | 16 | 24 | 40>(8)
@@ -378,6 +479,10 @@ createApp({
       textareaStyle,
       h2Style,
       labelStyle,
+      locales,
+      localeOptions,
+      currentLocale,
+      t,
       title,
       theme,
       stickerCount,
@@ -412,7 +517,15 @@ createApp({
   },
   template: `
     <div :style="{ maxWidth: '860px', margin: '32px auto', fontFamily: 'system-ui', background: colors.bg, padding: '16px', borderRadius: '12px', color: colors.text }">
-      <h1 style="margin: 4px 0 12px; font-size:22px;">LINE 貼圖製作平台</h1>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <h1 style="margin: 4px 0 12px; font-size:22px;">{{ t('app.title') }}</h1>
+        <div>
+          <label :style="labelStyle">{{ t('label.language') }}</label>
+          <select v-model="currentLocale" :style="selectStyle">
+            <option v-for="code in localeOptions" :key="code" :value="code">{{ locales[code].name }}</option>
+          </select>
+        </div>
+      </div>
       <Notice :message="error" type="error" />
       <Notice :message="success" type="success" />
       <Notice v-if="loading" message="處理中..." type="info" />
@@ -432,22 +545,22 @@ createApp({
       </div>
 
       <section v-if="step === 'CREATE_PROJECT'" :style="sectionStyle">
-        <h2 :style="h2Style">1. 建立專案</h2>
-        <label :style="labelStyle">專案名稱</label>
+        <h2 :style="h2Style">{{ t('step.create') }}</h2>
+        <label :style="labelStyle">{{ t('label.projectName') }}</label>
         <input v-model="title" :style="inputStyle" />
 
-        <label :style="labelStyle">貼圖數量</label>
+        <label :style="labelStyle">{{ t('label.stickerCount') }}</label>
         <select v-model.number="stickerCount" :style="selectStyle">
           <option :value="8">8</option>
           <option :value="16">16</option>
           <option :value="24">24</option>
           <option :value="40">40</option>
         </select>
-        <button @click="createProject" :style="primaryButtonStyle" style="margin-left: 12px;">下一步</button>
+        <button @click="createProject" :style="primaryButtonStyle" style="margin-left: 12px;">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
-        <h2 :style="h2Style">2. 角色設定</h2>
+        <h2 :style="h2Style">{{ t('step.character') }}</h2>
         <label :style="labelStyle">來源</label>
         <select v-model="characterReq.sourceType" :style="selectStyle">
           <option value="AI">AI 生成</option>
@@ -468,7 +581,7 @@ createApp({
       </section>
 
       <section v-else-if="step === 'THEME'" :style="sectionStyle">
-        <h2 :style="h2Style">3. 主題與焦點</h2>
+        <h2 :style="h2Style">{{ t('step.theme') }}</h2>
         <label :style="labelStyle">主題</label>
         <input v-model="theme" :style="inputStyle" />
 
@@ -532,17 +645,17 @@ createApp({
           <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">尚未驗證通過的 provider/model</div>
         </div>
 
-        <button @click="updateTheme" :style="primaryButtonStyle">下一步</button>
+        <button @click="updateTheme" :style="primaryButtonStyle">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
-        <h2>4. 草稿生成</h2>
+        <h2 :style="h2Style">{{ t('step.drafts') }}</h2>
         <p>將根據主題與數量生成草稿。</p>
-        <button @click="generateDrafts" :style="primaryButtonStyle">產生草稿</button>
+        <button @click="generateDrafts" :style="primaryButtonStyle">{{ t('button.next') }}</button>
       </section>
 
       <section v-else-if="step === 'GENERATE'" :style="sectionStyle">
-        <h2>5. 草稿確認 / 編輯</h2>
+        <h2 :style="h2Style">{{ t('step.generate') }}</h2>
         <button @click="regenerateDrafts" :style="buttonStyle">重生全部草稿</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
           <div>第 {{ d.index }} 張</div>
@@ -556,7 +669,7 @@ createApp({
       </section>
 
       <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
-        <h2>6. 預覽</h2>
+        <h2 :style="h2Style">{{ t('step.preview') }}</h2>
         <div style="margin: 8px 0;">
           <label :style="labelStyle">格數：</label>
           <select v-model="gridCols" :style="selectStyle">
