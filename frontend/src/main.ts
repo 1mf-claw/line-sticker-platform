@@ -37,6 +37,21 @@ createApp({
     const exportWarnings = ref<string[]>([])
     const gridCols = ref(4)
 
+    const sectionStyle = {
+      border: '1px solid #e5e7eb',
+      borderRadius: '10px',
+      padding: '14px',
+      marginTop: '12px',
+      background: '#fff',
+    }
+    const buttonStyle = {
+      padding: '6px 12px',
+      borderRadius: '6px',
+      border: '1px solid #d1d5db',
+      background: '#f9fafb',
+      cursor: 'pointer',
+    }
+
     const title = ref('LINE Sticker Project')
     const theme = ref('')
     const stickerCount = ref<8 | 16 | 24 | 40>(8)
@@ -316,6 +331,8 @@ createApp({
       jobError,
       retryLastAction,
       exportWarnings,
+      sectionStyle,
+      buttonStyle,
       title,
       theme,
       stickerCount,
@@ -349,8 +366,8 @@ createApp({
     }
   },
   template: `
-    <div style="max-width: 720px; margin: 32px auto; font-family: system-ui;">
-      <h1>LINE 貼圖製作平台</h1>
+    <div style="max-width: 860px; margin: 32px auto; font-family: system-ui; background:#f8fafc; padding:16px; border-radius:12px;">
+      <h1 style="margin: 4px 0 12px;">LINE 貼圖製作平台</h1>
       <Notice :message="error" type="error" />
       <Notice :message="success" type="success" />
       <Notice v-if="loading" message="處理中..." type="info" />
@@ -369,7 +386,7 @@ createApp({
         </div>
       </div>
 
-      <section v-if="step === 'CREATE_PROJECT'">
+      <section v-if="step === 'CREATE_PROJECT'" :style="sectionStyle">
         <h2>1. 建立專案</h2>
         <label>專案名稱</label>
         <input v-model="title" style="width: 100%; margin: 8px 0;" />
@@ -384,7 +401,7 @@ createApp({
         <button @click="createProject" style="margin-left: 12px;">下一步</button>
       </section>
 
-      <section v-else-if="step === 'CHARACTER'">
+      <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
         <h2>2. 角色設定</h2>
         <label>來源</label>
         <select v-model="characterReq.sourceType">
@@ -405,7 +422,7 @@ createApp({
         <button @click="createCharacter">下一步</button>
       </section>
 
-      <section v-else-if="step === 'THEME'">
+      <section v-else-if="step === 'THEME'" :style="sectionStyle">
         <h2>3. 主題與焦點</h2>
         <label>主題</label>
         <input v-model="theme" style="width: 100%; margin: 8px 0;" />
@@ -473,13 +490,13 @@ createApp({
         <button @click="updateTheme">下一步</button>
       </section>
 
-      <section v-else-if="step === 'DRAFTS'">
+      <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
         <h2>4. 草稿生成</h2>
         <p>將根據主題與數量生成草稿。</p>
         <button @click="generateDrafts">產生草稿</button>
       </section>
 
-      <section v-else-if="step === 'GENERATE'">
+      <section v-else-if="step === 'GENERATE'" :style="sectionStyle">
         <h2>5. 草稿確認 / 編輯</h2>
         <button @click="regenerateDrafts">重生全部草稿</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
@@ -493,7 +510,7 @@ createApp({
         <button @click="generateStickers">開始生成貼圖</button>
       </section>
 
-      <section v-else-if="step === 'PREVIEW'">
+      <section v-else-if="step === 'PREVIEW'" :style="sectionStyle">
         <h2>6. 預覽</h2>
         <div style="margin: 8px 0;">
           <label>格數：</label>
