@@ -144,15 +144,15 @@ createApp({
         const bgModelValue = bgCustom.value || bgModel.value
 
         if (!textProvider.value || !textModelValue) {
-          error.value = '請完成文字生成的供應商與模型'
+          error.value = '請完成「文字生成」的供應商與模型（或自訂模型 ID）'
           return
         }
         if (!imageProvider.value || !imageModelValue) {
-          error.value = '請完成圖像生成的供應商與模型'
+          error.value = '請完成「圖像生成」的供應商與模型（或自訂模型 ID）'
           return
         }
         if (!bgProvider.value || !bgModelValue) {
-          error.value = '請完成去背的供應商與模型'
+          error.value = '請完成「去背」的供應商與模型（或自訂模型 ID）'
           return
         }
 
