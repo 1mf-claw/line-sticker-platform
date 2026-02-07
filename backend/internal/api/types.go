@@ -87,6 +87,7 @@ type Sticker struct {
 	ImageURL       string `json:"imageUrl"`
 	TransparentURL string `json:"transparentUrl"`
 	Status         string `json:"status"`
+	CreatedAt      string `json:"createdAt"`
 }
 
 type Job struct {
