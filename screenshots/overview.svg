@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720">
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  <rect x="80" y="80" width="1040" height="560" rx="16" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="120" y="160" font-family="system-ui, -apple-system" font-size="28" fill="#0f172a">LINE 貼圖製作平台</text>
+  <text x="120" y="210" font-family="system-ui, -apple-system" font-size="16" fill="#64748b">Screenshot placeholder — replace with real UI capture</text>
+</svg>

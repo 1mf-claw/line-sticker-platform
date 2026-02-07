@@ -54,7 +54,7 @@ npm run build
 ```
 
 ### 截圖
-> TODO: 請補上 UI 截圖
+![UI Overview](screenshots/overview.svg)
 
 ### 版本紀錄
 - `v0.1.x`：MVP（草稿 / 生成 / 去背 / 匯出）
@@ -109,7 +109,7 @@ npm run build
 ```
 
 ### Screenshots
-> TODO: add UI screenshots
+![UI Overview](screenshots/overview.svg)
 
 ### Changelog
 - `v0.1.x`: MVP (drafts / generate / remove BG / export)
