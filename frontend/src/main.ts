@@ -473,9 +473,136 @@ createApp({
           ja: 'おすすめ背景モデル',
           ko: '추천 배경 모델',
         },
+        'status.loading': {
+          'zh-TW': '處理中...',
+          'zh-CN': '处理中...',
+          en: 'Loading...',
+          ja: '処理中...',
+          ko: '처리 중...',
+        },
+        'label.required': {
+          'zh-TW': '必填',
+          'zh-CN': '必填',
+          en: 'Required',
+          ja: '必須',
+          ko: '필수',
+        },
+        'option.source.ai': {
+          'zh-TW': 'AI 生成',
+          'zh-CN': 'AI 生成',
+          en: 'AI',
+          ja: 'AI生成',
+          ko: 'AI 생성',
+        },
+        'option.source.upload': {
+          'zh-TW': '上傳圖片',
+          'zh-CN': '上传图片',
+          en: 'Upload',
+          ja: 'アップロード',
+          ko: '업로드',
+        },
+        'option.source.history': {
+          'zh-TW': '歷史角色',
+          'zh-CN': '历史角色',
+          en: 'History',
+          ja: '履歴',
+          ko: '기록',
+        },
+        'placeholder.customModelHint': {
+          'zh-TW': 'replicate model version / openai model',
+          'zh-CN': 'replicate model version / openai model',
+          en: 'replicate model version / openai model',
+          ja: 'replicate model version / openai model',
+          ko: 'replicate model version / openai model',
+        },
+        'placeholder.customModelId': {
+          'zh-TW': '自訂模型 ID',
+          'zh-CN': '自定义模型 ID',
+          en: 'Custom model ID',
+          ja: 'カスタムモデルID',
+          ko: '사용자 모델 ID',
+        },
+        'desc.drafts': {
+          'zh-TW': '將根據主題與數量生成草稿。',
+          'zh-CN': '将根据主题与数量生成草稿。',
+          en: 'Drafts will be generated from your theme and count.',
+          ja: 'テーマと枚数から下書きを生成します。',
+          ko: '테마와 개수에 따라 초안을 생성합니다.',
+        },
+        'label.draftIndex': {
+          'zh-TW': '第 {n} 張',
+          'zh-CN': '第 {n} 张',
+          en: 'Sticker {n}',
+          ja: '{n}枚目',
+          ko: '{n}번',
+        },
+        'job.title': {
+          'zh-TW': 'Job 狀態',
+          'zh-CN': '任务状态',
+          en: 'Job Status',
+          ja: 'ジョブ状態',
+          ko: '작업 상태',
+        },
+        'job.state.RUNNING': {
+          'zh-TW': '進行中',
+          'zh-CN': '进行中',
+          en: 'Running',
+          ja: '実行中',
+          ko: '진행 중',
+        },
+        'job.state.SUCCESS': {
+          'zh-TW': '成功',
+          'zh-CN': '成功',
+          en: 'Success',
+          ja: '成功',
+          ko: '성공',
+        },
+        'job.state.FAILED': {
+          'zh-TW': '失敗',
+          'zh-CN': '失败',
+          en: 'Failed',
+          ja: '失敗',
+          ko: '실패',
+        },
+        'grid.4': {
+          'zh-TW': '4（40 張）',
+          'zh-CN': '4（40 张）',
+          en: '4 (40)',
+          ja: '4（40枚）',
+          ko: '4 (40장)',
+        },
+        'grid.5': {
+          'zh-TW': '5（24 張）',
+          'zh-CN': '5（24 张）',
+          en: '5 (24)',
+          ja: '5（24枚）',
+          ko: '5 (24장)',
+        },
+        'grid.6': {
+          'zh-TW': '6（16 張）',
+          'zh-CN': '6（16 张）',
+          en: '6 (16)',
+          ja: '6（16枚）',
+          ko: '6 (16장)',
+        },
+        'grid.8': {
+          'zh-TW': '8（8 張）',
+          'zh-CN': '8（8 张）',
+          en: '8 (8)',
+          ja: '8（8枚）',
+          ko: '8 (8장)',
+        },
       }
       const loc = currentLocale.value
       return dict[key]?.[loc] || dict[key]?.en || key
+    }
+
+    const tf = (key: string, params: Record<string, string | number>) => {
+      let s = t(key)
+      for (const [k, v] of Object.entries(params)) {
+        s = s.replaceAll(`{${k}}`, String(v))
+      }
+      return s
     }
 
     const title = ref('LINE Sticker Project')
@@ -770,6 +897,7 @@ createApp({
       localeOptions,
       currentLocale,
       t,
+      tf,
       title,
       theme,
       stickerCount,
@@ -815,7 +943,7 @@ createApp({
       </div>
       <Notice :message="error" type="error" />
       <Notice :message="success" type="success" />
-      <Notice v-if="loading" message="處理中..." type="info" />
+      <Notice v-if="loading" :message="t('status.loading')" type="info" />
 
       <div v-if="jobStatus" style="margin: 12px 0; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -850,9 +978,9 @@ createApp({
         <h2 :style="h2Style">{{ t('step.character') }}</h2>
         <label :style="labelStyle">{{ t('label.source') }}</label>
         <select v-model="characterReq.sourceType" :style="selectStyle">
-          <option value="AI">AI 生成</option>
-          <option value="UPLOAD">上傳圖片</option>
-          <option value="HISTORY">歷史角色</option>
+          <option value="AI">{{ t('option.source.ai') }}</option>
+          <option value="UPLOAD">{{ t('option.source.upload') }}</option>
+          <option value="HISTORY">{{ t('option.source.history') }}</option>
         </select>
 
         <div v-if="characterReq.sourceType === 'AI'">
@@ -890,7 +1018,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>文字生成</strong>（必填）<br/>
+          <strong>{{ t('label.textGen') }}</strong>（{{ t('label.required') }}）<br/>
           <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
@@ -901,7 +1029,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>圖像生成</strong>（必填）<br/>
+          <strong>{{ t('label.imageGen') }}</strong>（{{ t('label.required') }}）<br/>
           <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
@@ -912,7 +1040,7 @@ createApp({
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
-          <strong>{{ t('label.bgRemove') }}</strong>（必填）<br/>
+          <strong>{{ t('label.bgRemove') }}</strong>（{{ t('label.required') }}）<br/>
           <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
@@ -937,7 +1065,7 @@ createApp({
 
       <section v-else-if="step === 'DRAFTS'" :style="sectionStyle">
         <h2 :style="h2Style">{{ t('step.drafts') }}</h2>
-        <p>{{ t('step.drafts') }}</p>
+        <p>{{ t('desc.drafts') }}</p>
         <button @click="generateDrafts" :style="primaryButtonStyle">{{ t('button.next') }}</button>
       </section>
 
@@ -945,7 +1073,7 @@ createApp({
         <h2 :style="h2Style">{{ t('step.generate') }}</h2>
         <button @click="regenerateDrafts" :style="buttonStyle">{{ t('button.regenerateDrafts') }}</button>
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
-          <div>第 {{ d.index }} 張</div>
+          <div>{{ tf('label.draftIndex', { n: d.index }) }}</div>
           <label :style="labelStyle">{{ t('label.caption') }}</label>
           <input v-model="d.caption" :style="inputStyle" />
           <label :style="labelStyle">{{ t('label.prompt') }}</label>
@@ -960,10 +1088,10 @@ createApp({
         <div style="margin: 8px 0;">
           <label :style="labelStyle">{{ t('label.grid') }}</label>
           <select v-model="gridCols" :style="selectStyle">
-            <option :value="4">4（40 張）</option>
-            <option :value="5">5（24 張）</option>
-            <option :value="6">6（16 張）</option>
-            <option :value="8">8（8 張）</option>
+            <option :value="4">{{ t('grid.4') }}</option>
+            <option :value="5">{{ t('grid.5') }}</option>
+            <option :value="6">{{ t('grid.6') }}</option>
+            <option :value="8">{{ t('grid.8') }}</option>
           </select>
         </div>
         <div :style="{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, gap: '10px' }">
