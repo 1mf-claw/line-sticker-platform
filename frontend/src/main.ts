@@ -86,7 +86,7 @@ createApp({
     })
 
     const syncDefaultModel = (providerRef: any, modelRef: any, customRef: any) => {
-      const p = providers.value.find((x) => x.id === providerRef.value)
+      const p = verifiedProviders.value.find((x) => x.id === providerRef.value)
       if (p && p.models.length > 0) {
         modelRef.value = p.models[0]
       }
