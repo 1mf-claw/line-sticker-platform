@@ -69,6 +69,24 @@ createApp({
       color: '#fff',
       border: `1px solid ${colors.primary}`,
     }
+    const inputStyle = {
+      width: '100%',
+      margin: '6px 0',
+      padding: '6px 8px',
+      border: `1px solid ${colors.border}`,
+      borderRadius: '6px',
+      background: '#fff',
+      color: colors.text,
+    }
+    const selectStyle = {
+      ...inputStyle,
+      width: 'auto',
+      margin: '6px 6px 6px 0',
+    }
+    const textareaStyle = {
+      ...inputStyle,
+      minHeight: '72px',
+    }
     const h2Style = { fontSize: '18px', margin: '0 0 8px', color: colors.text }
     const labelStyle = { fontSize: '13px', color: colors.muted }
 
@@ -355,6 +373,9 @@ createApp({
       sectionStyle,
       buttonStyle,
       primaryButtonStyle,
+      inputStyle,
+      selectStyle,
+      textareaStyle,
       h2Style,
       labelStyle,
       title,
@@ -413,10 +434,10 @@ createApp({
       <section v-if="step === 'CREATE_PROJECT'" :style="sectionStyle">
         <h2 :style="h2Style">1. 建立專案</h2>
         <label :style="labelStyle">專案名稱</label>
-        <input v-model="title" style="width: 100%; margin: 8px 0;" />
+        <input v-model="title" :style="inputStyle" />
 
         <label :style="labelStyle">貼圖數量</label>
-        <select v-model.number="stickerCount">
+        <select v-model.number="stickerCount" :style="selectStyle">
           <option :value="8">8</option>
           <option :value="16">16</option>
           <option :value="24">24</option>
@@ -428,7 +449,7 @@ createApp({
       <section v-else-if="step === 'CHARACTER'" :style="sectionStyle">
         <h2 :style="h2Style">2. 角色設定</h2>
         <label :style="labelStyle">來源</label>
-        <select v-model="characterReq.sourceType">
+        <select v-model="characterReq.sourceType" :style="selectStyle">
           <option value="AI">AI 生成</option>
           <option value="UPLOAD">上傳圖片</option>
           <option value="HISTORY">歷史角色</option>
@@ -436,11 +457,11 @@ createApp({
 
         <div v-if="characterReq.sourceType === 'AI'">
           <label :style="labelStyle">角色描述</label>
-          <input v-model="characterReq.prompt" style="width: 100%; margin: 8px 0;" />
+          <input v-model="characterReq.prompt" :style="inputStyle" />
         </div>
         <div v-else>
           <label :style="labelStyle">Reference 圖片 URL</label>
-          <input v-model="characterReq.referenceImageUrl" style="width: 100%; margin: 8px 0;" />
+          <input v-model="characterReq.referenceImageUrl" :style="inputStyle" />
         </div>
 
         <button @click="createCharacter" :style="primaryButtonStyle">下一步</button>
@@ -449,64 +470,64 @@ createApp({
       <section v-else-if="step === 'THEME'" :style="sectionStyle">
         <h2 :style="h2Style">3. 主題與焦點</h2>
         <label :style="labelStyle">主題</label>
-        <input v-model="theme" style="width: 100%; margin: 8px 0;" />
+        <input v-model="theme" :style="inputStyle" />
 
         <div style="margin: 8px 0;">
           <label :style="labelStyle">預設 AI 供應商（僅顯示已驗證）</label>
-          <select v-model="selectedProvider" :disabled="!verified">
+          <select v-model="selectedProvider" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
 
           <label :style="{ ...labelStyle, marginLeft: '8px' }">預設模型</label>
-          <select v-model="selectedModel" :disabled="!verified">
+          <select v-model="selectedModel" :disabled="!verified" :style="selectStyle">
             <option v-for="m in (verifiedProviders.find(p => p.id === selectedProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
         </div>
 
         <div style="margin: 8px 0;">
           <label :style="labelStyle">預設自訂模型 ID（可選）</label>
-          <input v-model="customModel" placeholder="replicate model version / openai model" style="width:100%; margin:6px 0;" />
+          <input v-model="customModel" placeholder="replicate model version / openai model" :style="inputStyle" />
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>文字生成</strong>（必填）<br/>
-          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })" :disabled="!verified">
+          <select v-model="textProvider" @change="syncDefaultModel({ value: textProvider }, { value: textModel }, { value: textCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="textModel" :disabled="!verified">
+          <select v-model="textModel" :disabled="!verified" :style="selectStyle">
             <option v-for="m in (verifiedProviders.find(p => p.id === textProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="textCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
+          <input v-model="textCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>圖像生成</strong>（必填）<br/>
-          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })" :disabled="!verified">
+          <select v-model="imageProvider" @change="syncDefaultModel({ value: imageProvider }, { value: imageModel }, { value: imageCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="imageModel" :disabled="!verified">
+          <select v-model="imageModel" :disabled="!verified" :style="selectStyle">
             <option v-for="m in (verifiedProviders.find(p => p.id === imageProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="imageCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
+          <input v-model="imageCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
         </div>
 
         <div style="margin: 8px 0; padding: 8px; border:1px dashed #ddd;">
           <strong>去背</strong>（必填）<br/>
-          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified">
+          <select v-model="bgProvider" @change="syncDefaultModel({ value: bgProvider }, { value: bgModel }, { value: bgCustom })" :disabled="!verified" :style="selectStyle">
             <option v-for="p in verifiedProviders" :key="p.id" :value="p.id">{{ p.name || p.id }}</option>
           </select>
-          <select v-model="bgModel" :disabled="!verified">
+          <select v-model="bgModel" :disabled="!verified" :style="selectStyle">
             <option v-for="m in (verifiedProviders.find(p => p.id === bgProvider)?.models || [])" :key="m" :value="m">{{ m }}</option>
           </select>
-          <input v-model="bgCustom" placeholder="自訂模型 ID" style="width:100%; margin:6px 0;" :disabled="!verified" />
+          <input v-model="bgCustom" placeholder="自訂模型 ID" :style="inputStyle" :disabled="!verified" />
           <div style="color:#666; margin-top:4px;" v-if="bgRecommendMap[bgProvider]">推薦去背模型：{{ bgRecommendMap[bgProvider] }}</div>
         </div>
 
         <div style="margin: 8px 0;">
           <label :style="labelStyle">API Key（只會暫存於記憶體）</label>
-          <input v-model="apiKey" type="password" style="width:100%; margin:6px 0;" />
+          <input v-model="apiKey" type="password" :style="inputStyle" />
           <label :style="labelStyle">API Base（可選）</label>
-          <input v-model="apiBase" placeholder="https://api.openai.com" style="width:100%; margin:6px 0;" />
+          <input v-model="apiBase" placeholder="https://api.openai.com" :style="inputStyle" />
           <small :style="{ color: colors.muted }">完成驗證後，才能選擇下方模型</small>
           <div v-if="verifiedProviders.length === 0" style="color:#999; margin-top:4px;">尚未驗證通過的 provider/model</div>
         </div>
@@ -526,9 +547,9 @@ createApp({
         <div v-for="d in drafts" :key="d.id" style="border:1px solid #eee; padding:12px; margin:12px 0;">
           <div>第 {{ d.index }} 張</div>
           <label :style="labelStyle">配字</label>
-          <input v-model="d.caption" style="width:100%; margin:6px 0;" />
+          <input v-model="d.caption" :style="inputStyle" />
           <label :style="labelStyle">描述</label>
-          <textarea v-model="d.imagePrompt" style="width:100%; margin:6px 0;"></textarea>
+          <textarea v-model="d.imagePrompt" :style="textareaStyle"></textarea>
           <button @click="saveDraft(d)" :style="buttonStyle">保存此草稿</button>
         </div>
         <button @click="generateStickers" :style="primaryButtonStyle">開始生成貼圖</button>
@@ -538,7 +559,7 @@ createApp({
         <h2>6. 預覽</h2>
         <div style="margin: 8px 0;">
           <label :style="labelStyle">格數：</label>
-          <select v-model="gridCols">
+          <select v-model="gridCols" :style="selectStyle">
             <option :value="4">4（40 張）</option>
             <option :value="5">5（24 張）</option>
             <option :value="6">6（16 張）</option>
