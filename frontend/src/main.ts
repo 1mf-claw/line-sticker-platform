@@ -21,6 +21,7 @@ createApp({
     const step = ref<Step>('CREATE_PROJECT')
     const loading = ref(false)
     const error = ref('')
+    const success = ref('')
 
     const project = ref<Project | null>(null)
     const drafts = ref<Draft[]>([])
@@ -104,6 +105,7 @@ createApp({
 
     const run = async (fn: () => Promise<void>) => {
       error.value = ''
+      success.value = ''
       loading.value = true
       try {
         await fn()
@@ -188,7 +190,7 @@ createApp({
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
-        error.value = 'API Key 驗證成功'
+        success.value = 'API Key 驗證成功'
         next('DRAFTS')
       })
 
@@ -253,6 +255,7 @@ createApp({
       step,
       loading,
       error,
+      success,
       project,
       drafts,
       stickers,
@@ -295,6 +298,7 @@ createApp({
     <div style="max-width: 720px; margin: 32px auto; font-family: system-ui;">
       <h1>LINE 貼圖製作平台</h1>
       <p v-if="error" style="color: red;">{{ error }}</p>
+      <p v-if="success" style="color: green;">{{ success }}</p>
       <p v-if="loading">處理中...</p>
 
       <div v-if="jobStatus" style="margin: 12px 0;">
