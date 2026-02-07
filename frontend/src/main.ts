@@ -900,6 +900,7 @@ createApp({
       saveSettings,
       updateTheme,
       prev,
+      next,
       generateDrafts,
       saveDraft,
       regenerateDrafts,
