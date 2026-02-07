@@ -32,6 +32,7 @@ createApp({
 
     const jobStatus = ref('')
     const jobProgress = ref(0)
+    const gridCols = ref(4)
 
     const title = ref('LINE Sticker Project')
     const theme = ref('')
@@ -447,13 +448,22 @@ createApp({
 
       <section v-else-if="step === 'PREVIEW'">
         <h2>6. 預覽</h2>
-        <ul>
-          <li v-for="s in stickers" :key="s.id">
-            {{ s.id }} - {{ s.status }}
-            <span v-if="s.transparentUrl">(已去背)</span>
-            <button @click="regenerateSticker(s.id)" style="margin-left:8px;">重生此張</button>
-          </li>
-        </ul>
+        <div style="margin: 8px 0;">
+          <label>格數：</label>
+          <select v-model="gridCols">
+            <option :value="4">4（40 張）</option>
+            <option :value="5">5（24 張）</option>
+            <option :value="6">6（16 張）</option>
+            <option :value="8">8（8 張）</option>
+          </select>
+        </div>
+        <div :style="{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, gap: '10px' }">
+          <div v-for="s in stickers" :key="s.id" style="border:1px solid #eee; padding:8px; text-align:center;">
+            <img :src="s.transparentUrl || s.imageUrl" style="width:100%; height:auto; max-width:140px;" />
+            <div style="font-size:12px; color:#666; margin-top:4px;">#{{ s.id.slice(0,6) }} <span v-if="s.transparentUrl">(已去背)</span></div>
+            <button @click="regenerateSticker(s.id)" style="margin-top:6px;">重生此張</button>
+          </div>
+        </div>
         <div style="margin:12px 0;">
           <button @click="removeBackground">去背（保留主角完整）</button>
           <button @click="exportZip" style="margin-left:8px;">產生下載</button>
