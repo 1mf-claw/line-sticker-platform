@@ -13,6 +13,7 @@ import type {
 type Step =
   | 'CREATE_PROJECT'
   | 'CHARACTER'
+  | 'SETTINGS'
   | 'THEME'
   | 'DRAFTS'
   | 'GENERATE'
@@ -676,6 +677,10 @@ createApp({
           title: title.value,
           stickerCount: stickerCount.value,
         })
+        if (!verified.value) {
+          next('SETTINGS')
+          return
+        }
         next('CHARACTER')
       })
 
@@ -686,7 +691,7 @@ createApp({
         next('THEME')
       })
 
-    const updateTheme = () =>
+    const saveSettings = () =>
       run(async () => {
         if (!project.value) return
         if (!apiKey.value) {
@@ -742,10 +747,16 @@ createApp({
           bgProvider.value = p0.id
           bgModel.value = bgRecommendMap[p0.id] || (p0.models[0] || '')
         }
+        success.value = t('status.verifyOk')
+        next('CHARACTER')
+      })
+
+    const updateTheme = () =>
+      run(async () => {
+        if (!project.value) return
         project.value = await api.updateProject(project.value.id, {
           theme: theme.value,
         })
-        success.value = t('status.verifyOk')
         next('DRAFTS')
       })
 
@@ -886,6 +897,7 @@ createApp({
       characterReq,
       createProject,
       createCharacter,
+      saveSettings,
       updateTheme,
       prev,
       generateDrafts,
@@ -902,6 +914,7 @@ createApp({
       <div class="flex items-center justify-between gap-3">
         <h1 class="text-xl font-semibold">{{ t('app.title') }}</h1>
         <div class="flex items-center gap-2">
+          <button @click="next('SETTINGS')" :class="buttonClass">設定</button>
           <label :class="labelClass">{{ t('label.language') }}</label>
           <select v-model="currentLocale" :class="selectClass">
             <option v-for="code in localeOptions" :key="code" :value="code">{{ locales[code].name }}</option>
@@ -941,34 +954,8 @@ createApp({
         <button @click="createProject" :class="primaryButtonClass" class="ml-3">{{ t('button.next') }}</button>
       </section>
 
-      <section v-else-if="step === 'CHARACTER'" :class="sectionClass">
-        <h2 :class="h2Class">{{ t('step.character') }}</h2>
-        <div class="mb-2 flex items-center gap-2">
-          <button @click="prev('CREATE_PROJECT')" :class="buttonClass">{{ t('button.back') }}</button>
-          <button @click="createCharacter" :class="primaryButtonClass">{{ t('button.next') }}</button>
-        </div>
-        <label :class="labelClass">{{ t('label.source') }}</label>
-        <select v-model="characterReq.sourceType" :class="selectClass">
-          <option value="AI">{{ t('option.source.ai') }}</option>
-          <option value="UPLOAD">{{ t('option.source.upload') }}</option>
-          <option value="HISTORY">{{ t('option.source.history') }}</option>
-        </select>
-
-        <div v-if="characterReq.sourceType === 'AI'">
-          <label :class="labelClass">{{ t('label.character') }}</label>
-          <input v-model="characterReq.prompt" :class="inputClass" />
-        </div>
-        <div v-else>
-          <label :class="labelClass">{{ t('label.referenceUrl') }}</label>
-          <input v-model="characterReq.referenceImageUrl" :class="inputClass" />
-        </div>
-      </section>
-
-      <section v-else-if="step === 'THEME'" :class="sectionClass">
-        <h2 :class="h2Class">{{ t('step.theme') }}</h2>
-        <label :class="labelClass">{{ t('label.theme') }}</label>
-        <input v-model="theme" :class="inputClass" />
-
+      <section v-else-if="step === 'SETTINGS'" :class="sectionClass">
+        <h2 :class="h2Class">設定</h2>
         <div class="my-2">
           <label :class="labelClass">{{ t('label.defaultProvider') }}</label>
           <select v-model="selectedProvider" :disabled="!verified" :class="selectClass">
@@ -1029,6 +1016,39 @@ createApp({
           <div v-if="verifiedProviders.length === 0" class="mt-1 text-sm text-slate-400">{{ t('helper.noVerified') }}</div>
         </div>
 
+        <div class="mt-2 flex items-center gap-2">
+          <button @click="prev('CREATE_PROJECT')" :class="buttonClass">{{ t('button.back') }}</button>
+          <button @click="saveSettings" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        </div>
+      </section>
+
+      <section v-else-if="step === 'CHARACTER'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.character') }}</h2>
+        <div class="mb-2 flex items-center gap-2">
+          <button @click="prev('CREATE_PROJECT')" :class="buttonClass">{{ t('button.back') }}</button>
+          <button @click="createCharacter" :class="primaryButtonClass">{{ t('button.next') }}</button>
+        </div>
+        <label :class="labelClass">{{ t('label.source') }}</label>
+        <select v-model="characterReq.sourceType" :class="selectClass">
+          <option value="AI">{{ t('option.source.ai') }}</option>
+          <option value="UPLOAD">{{ t('option.source.upload') }}</option>
+          <option value="HISTORY">{{ t('option.source.history') }}</option>
+        </select>
+
+        <div v-if="characterReq.sourceType === 'AI'">
+          <label :class="labelClass">{{ t('label.character') }}</label>
+          <input v-model="characterReq.prompt" :class="inputClass" />
+        </div>
+        <div v-else>
+          <label :class="labelClass">{{ t('label.referenceUrl') }}</label>
+          <input v-model="characterReq.referenceImageUrl" :class="inputClass" />
+        </div>
+      </section>
+
+      <section v-else-if="step === 'THEME'" :class="sectionClass">
+        <h2 :class="h2Class">{{ t('step.theme') }}</h2>
+        <label :class="labelClass">{{ t('label.theme') }}</label>
+        <input v-model="theme" :class="inputClass" />
         <div class="mt-2 flex items-center gap-2">
           <button @click="prev('CHARACTER')" :class="buttonClass">{{ t('button.back') }}</button>
           <button @click="updateTheme" :class="primaryButtonClass">{{ t('button.next') }}</button>
